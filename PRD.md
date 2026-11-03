@@ -111,11 +111,9 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Check terms of use for each source (NRI sources site, Delpher, DBNL) before bulk use.
 
 ### 10.2 Transcription (scan → text)
-- Modern print (Bavinck, Kuyper, Calvini Opera, Migne): OCR + vision-model correction.
-- Early-modern print: Kraken/eScriptorium or Transkribus, with vision models expanding abbreviations.
-- Handwriting: HTR (later phase).
-- **Output:** TEI-XML with page and line anchors back to the scan. Never plain text as the canonical form.
-- Expect the NRI PDFs' existing OCR layers to be mediocre; re-read everything.
+- **Designed 2026-11-02 for Bavinck.** See `docs/transcription.md` and ADR 0007.
+- GD¹: conversion from the Gutenberg transcriptions with DP corrections encoded. GD²: ensemble OCR (two engines plus Delpher's layer) → ALTO → TEI, second printing as base, fourth-printing pagination layered on; quality as CER against hand-corrected ground-truth pages.
+- Early-modern print (scholastics phase): Kraken/eScriptorium or Transkribus, with vision models expanding abbreviations. Handwriting: HTR (later phase).
 
 ### 10.3 Text model and citation scheme
 - **Designed 2026-11-02.** See `docs/text-model.md` and ADRs 0002–0005.
@@ -170,7 +168,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 ## 12. Verification strategy (outside judges)
 
-1. **Parallel corpora:** public-domain pairs (Calvin Latin ↔ Beveridge/CTS) openly; copyrighted pairs (Bavinck ↔ Bolt) privately, as judges only.
+1. **Parallel corpora:** public-domain pairs (Calvin Latin ↔ Beveridge/CTS) openly; copyrighted pairs (Bavinck ↔ Bolt) privately, as judges only. Robert owns the Bolt/Vriend volumes in print and digital form; the digital text stays outside the repo and is used only to produce drift numbers. Because Bolt keeps the `#` numbers, it aligns to GD² by `#` with no alignment step.
 2. **Human reviewers:** Dutch/Latin readers via the review workflow; seminary seminars.
 3. **Consistency checks:** lexicon-driven term consistency across the corpus; flagged deviations.
 4. **Reproducibility:** published pipeline, prompts, lexicon, and evaluation numbers.
@@ -206,7 +204,7 @@ Each is a session of its own; order is a proposal.
 
 1. ~~**Text model and citation scheme**~~ — done 2026-11-02; see `docs/text-model.md`. Open facts to verify are listed there.
 2. **Corpus and rights** — inventory of Bavinck sources via NRI bibliography; what's translated; source terms; rights registry design.
-3. **Transcription** — tool choice for modern print now and early-modern print later; TEI output; quality measurement.
+3. ~~**Transcription**~~ — done 2026-11-02 for Bavinck; see `docs/transcription.md` and ADR 0007. Early-modern print remains open for the scholastics phase.
 4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
 5. **Translation and lexicon** — model, prompts, lexicon format, calibration protocol, drift metrics.
 6. **Provenance and review** — state model, reviewer UI, how corrections feed back.
