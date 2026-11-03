@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertguss/bron/schemas/redirects.schema.json",
+  "title": "Identifier redirects and retirements",
+  "description": "identifiers/redirects.yaml in a Bron data repository: every passage identifier that left a text, and what it became. Entries are append-only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["redirects"],
+  "properties": {
+    "redirects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["urn", "status", "reason", "date"],
+        "properties": {
+          "urn": {"type": "string", "pattern": "^urn:cts:[^:]+:[^:]+:[^:]+$"},
+          "status": {"enum": ["redirected", "retired"]},
+          "replaced_by": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "pattern": "^urn:cts:[^:]+:[^:]+:[^:]+$"}
+          },
+          "reason": {"type": "string", "minLength": 1},
+          "date": {"type": "string", "format": "date"}
+        },
+        "if": {"properties": {"status": {"const": "redirected"}}},
+        "then": {"required": ["replaced_by"]},
+        "else": {"not": {"required": ["replaced_by"]}}
+      }
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 import pytest
@@ -40,3 +41,23 @@ def test_check_reports_findings_as_file_line_check_message(
     [line] = capsys.readouterr().out.splitlines()
     assert line.startswith("data/fixture/gd/fixture.gd.ed1.xml:")
     assert ": cts-body-lang: " in line
+
+
+def test_check_without_a_base_says_stability_was_skipped(
+    data_repo: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["check", str(data_repo)]) == 0
+    assert "identifier stability was skipped" in capsys.readouterr().err
+
+
+def test_check_with_require_base_and_no_base_fails(
+    data_repo: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["check", str(data_repo), "--require-base"]) == 1
+    assert ": stability-base: " in capsys.readouterr().out
+
+
+def test_check_against_an_identical_base_passes(data_repo: Path, tmp_path: Path) -> None:
+    base = tmp_path / "base"
+    shutil.copytree(data_repo, base)
+    assert main(["check", str(data_repo), "--base", str(base), "--require-base"]) == 0

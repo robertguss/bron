@@ -7,6 +7,7 @@ from bron.checks.bron_rules import check_bron_rules
 from bron.checks.capitains import check_capitains
 from bron.checks.citations import check_citations
 from bron.checks.schema import check_schema
+from bron.checks.stability import stability_check
 from bron.checks.tei_constraints import check_tei_constraints
 from bron.findings import Finding
 
@@ -19,5 +20,8 @@ ALL_CHECKS: list[Check] = [
 ]
 
 
-def check_repository(root: Path) -> list[Finding]:
-    return run_checks(root, ALL_CHECKS)
+def check_repository(
+    root: Path, base: Path | None = None, *, require_base: bool = False
+) -> list[Finding]:
+    """Run every check; identifier stability also compares against `base` when given."""
+    return run_checks(root, [*ALL_CHECKS, stability_check(base, require_base=require_base)])
