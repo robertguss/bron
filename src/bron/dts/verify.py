@@ -145,12 +145,10 @@ class _Run:
                 self.navigate(text, position, known, ref=unit.ref, down=down)
         for down in (*range(1, depth + 2), -1):
             self.navigate(text, position, known, down=down)
-        for identifier in known:
-            unit = text.by_ref.get(identifier)
-            if unit is None:
-                self.fail(text.urn, "dts-member", f"Navigation lists {identifier}, not a unit")
-            else:
-                self.document(text, [unit], ref=identifier)
+        for unit in text.units:
+            if unit.ref not in known:
+                self.fail(text.urn, "dts-member", f"the whole-tree Navigation omits {unit.ref}")
+            self.document(text, [unit], ref=unit.ref)
         by_level: dict[int, list[Unit]] = {}
         for unit in text.units:
             by_level.setdefault(unit.level, []).append(unit)

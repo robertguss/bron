@@ -152,3 +152,48 @@ def test_cli_rejects_a_malformed_expectation(
 ) -> None:
     assert main(["dts", "verify", str(data_repo), "--expect", "no-equals-sign"]) == 2
     assert "URN=TEXT" in capsys.readouterr().err
+
+
+def test_a_unit_navigation_leaves_out_is_reported_and_still_fetched(
+    data_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = responses.navigation
+
+    def dropping(index, resource, base, request_id, anchors, members):
+        if members is not None:
+            members = [unit for unit in members if unit.ref != "4.2"]
+        return real(index, resource, base, request_id, anchors, members)
+
+    monkeypatch.setattr(responses, "navigation", dropping)
+    report = verify(data_repo)
+    assert any("dts-member" in f and "omits 4.2" in f for f in report.failures)
+    assert report.documents == 15
+
+
+def test_a_fragment_with_the_wrong_text_fails(
+    data_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = responses.tei_fragment
+
+    def altered(units):
+        body = real(units)
+        if [unit.ref for unit in units] == ["3.2"]:
+            return body.replace(b"Maar de kerk", b"Maar het volk")
+        return body
+
+    monkeypatch.setattr(responses, "tei_fragment", altered)
+    [failure] = verify(data_repo).failures
+    assert "ref=3.2" in failure and "dts-text" in failure
+
+
+def test_members_out_of_document_order_fail(
+    data_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = responses.navigation
+
+    def reversed_members(index, resource, base, request_id, anchors, members):
+        return real(index, resource, base, request_id, anchors, members and members[::-1])
+
+    monkeypatch.setattr(responses, "navigation", reversed_members)
+    failures = verify(data_repo).failures
+    assert any("dts-order" in f for f in failures)

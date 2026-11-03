@@ -101,7 +101,7 @@ def test_check_summary_lists_the_records_new_since_the_base(
     main(["check", str(data_repo), "--base", str(base), "--summary", str(summary)])
     text = summary.read_text(encoding="utf-8")
     assert "identifiers/redirects.yaml" in text
-    assert f"`{urn}`" in text and "retired" in text and "Never printed." in text
+    assert urn in text and "retired" in text and "Never printed." in text
     assert "identifiers/edits.yaml: none" in text
 
 
@@ -111,3 +111,23 @@ def test_check_summary_without_new_records(data_repo: Path, tmp_path: Path) -> N
     summary = tmp_path / "summary.md"
     assert main(["check", str(data_repo), "--base", str(base), "--summary", str(summary)]) == 0
     assert "identifiers/redirects.yaml: none" in summary.read_text(encoding="utf-8")
+
+
+def test_check_summary_shows_record_text_literally(data_repo: Path, tmp_path: Path) -> None:
+    base = tmp_path / "base"
+    shutil.copytree(data_repo, base)
+    identifiers = data_repo / "identifiers"
+    identifiers.mkdir()
+    (identifiers / "redirects.yaml").write_text(
+        'redirects:\n  - urn: "urn:cts:bron:fixture.gd.ed1:3.12"\n    status: retired\n'
+        '    reason: "Hidden <!-- start\\n## Fake heading [link](https://x) `code`"\n'
+        "    date: 2026-11-03\n",
+        encoding="utf-8",
+    )
+    summary = tmp_path / "summary.md"
+    main(["check", str(data_repo), "--base", str(base), "--summary", str(summary)])
+    text = summary.read_text(encoding="utf-8")
+    assert "<!--" not in text
+    assert not any(line.startswith("## Fake") for line in text.splitlines())
+    assert "](" not in text
+    assert "Fake heading" in text

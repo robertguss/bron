@@ -173,3 +173,30 @@ def test_navigation_describes_its_resource(client: TestClient) -> None:
             ],
         }
     ]
+
+
+def test_unknown_paths_and_methods_answer_with_problem_bodies(client: TestClient) -> None:
+    for response, status in (
+        (client.get("/api/dts/nowhere"), 404),
+        (client.post("/api/dts/navigation"), 405),
+    ):
+        assert response.status_code == status
+        assert response.headers["content-type"].startswith("application/problem+json")
+        assert response.json()["status"] == status
+
+
+def test_a_failure_inside_the_resolver_answers_500_with_a_problem_body(
+    data_repo, monkeypatch
+) -> None:
+    from bron.dts import responses
+    from bron.dts.app import create_app
+    from tests.dts.conftest import BASE
+
+    def broken(units):
+        raise RuntimeError("extraction failed")
+
+    monkeypatch.setattr(responses, "tei_fragment", broken)
+    client = TestClient(create_app(data_repo, base_url=BASE), raise_server_exceptions=False)
+    response = client.get("/api/dts/document", params={"resource": RESOURCE, "ref": "3.2"})
+    assert response.status_code == 500
+    assert response.headers["content-type"].startswith("application/problem+json")

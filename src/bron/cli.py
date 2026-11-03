@@ -5,6 +5,7 @@ printed one per line as `file:line: check-id: message` so CI logs stay greppable
 """
 
 import argparse
+import re
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -13,6 +14,11 @@ from pathlib import Path
 def _not_yet(name: str) -> int:
     print(f"bron {name}: not available yet", file=sys.stderr)
     return 2
+
+
+def _literal(text: str) -> str:
+    """Pull-request text as one line of Markdown that renders exactly as written."""
+    return re.sub(r"([\\`*_{}\[\]()#+!|<>&~-])", r"\\\1", " ".join(text.split()))
 
 
 def _summary(head: Path, base: Path) -> str:
@@ -28,8 +34,11 @@ def _summary(head: Path, base: Path) -> str:
         for record in records:
             change = record.get("status", "edit")
             if replaced_by := record.get("replaced_by"):
-                change += " to " + ", ".join(f"`{urn}`" for urn in replaced_by)
-            lines.append(f"  - `{record['urn']}` {change}: {record['reason']} ({record['date']})")
+                change += " to " + ", ".join(_literal(urn) for urn in replaced_by)
+            lines.append(
+                f"  - {_literal(record['urn'])} {change}: {_literal(record['reason'])} "
+                f"({_literal(str(record['date']))})"
+            )
     return "\n".join([*lines, ""])
 
 

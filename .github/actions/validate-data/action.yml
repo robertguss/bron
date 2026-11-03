@@ -101,7 +101,8 @@ runs:
       id: upstream
       shell: bash
       run: |
-        if ! find "$BRON_HEAD_DATA/data" -name '*.xml' ! -name '__cts__.xml' | grep -q .; then
+        first_text="$(find "$BRON_HEAD_DATA/data" -name '*.xml' ! -name '__cts__.xml' -print -quit)"
+        if [ -z "$first_text" ]; then
           echo "::notice::The upstream DTS validator was skipped: the repository holds no text, and the validator cannot run without a Resource."
           echo "skipped=true" >> "$GITHUB_OUTPUT"
           exit 0

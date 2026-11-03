@@ -5,6 +5,7 @@ beside this file for the endpoints, Bron's redirect and tombstone answers, and t
 body every error carries.
 """
 
+from http import HTTPStatus
 from pathlib import Path
 from typing import Annotated
 from urllib.parse import urlencode, urlsplit
@@ -12,6 +13,7 @@ from urllib.parse import urlencode, urlsplit
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import RedirectResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from bron.dts import responses
 from bron.dts.index import DEFAULT_TREE, Index, Resource, Unit, build_index, split_passage_urn
@@ -33,6 +35,14 @@ def create_app(repo: Path, *, base_url: str) -> FastAPI:
     async def invalid_parameter(request: Request, error: RequestValidationError) -> Response:
         names = ", ".join(str(e["loc"][-1]) for e in error.errors())
         return Problem(400, "Bad Request", f"invalid value for {names}")
+
+    @app.exception_handler(StarletteHTTPException)
+    async def http_error(request: Request, error: StarletteHTTPException) -> Response:
+        return Problem(error.status_code, HTTPStatus(error.status_code).phrase, str(error.detail))
+
+    @app.exception_handler(Exception)
+    async def server_error(request: Request, error: Exception) -> Response:
+        return Problem(500, "Internal Server Error", "the resolver failed to answer")
 
     def entry() -> Response:
         return JsonLd(responses.entry(base))
