@@ -25,6 +25,7 @@ class CitableUnit:
     ref: str
     depth: int
     parent: str | None
+    cite_type: str
 
 
 @dataclass(frozen=True)
@@ -73,7 +74,9 @@ def cite_structure_units(source: Path | Document) -> list[CitableUnit]:
 
     def walk(found: list, depth: int, parent: str | None) -> None:
         for unit in found:
-            units.append(CitableUnit(ref=unit.ref, depth=depth, parent=parent))
+            units.append(
+                CitableUnit(ref=unit.ref, depth=depth, parent=parent, cite_type=unit.citeType)
+            )
             walk(unit.children, depth + 1, unit.ref)
 
     try:

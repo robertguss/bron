@@ -75,3 +75,10 @@ def test_check_against_a_base_reports_a_removed_citation(
     edition.write_text(text[:start] + text[end:], encoding="utf-8")
     assert main(["check", str(data_repo), "--base", str(base), "--require-base"]) == 1
     assert ": stability-removed: " in capsys.readouterr().out
+
+
+def test_serve_refuses_a_repository_it_cannot_index(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert main(["serve", str(tmp_path)]) == 1
+    assert "has no data/ directory" in capsys.readouterr().err

@@ -31,6 +31,7 @@
   <text>
     <body n="urn:cts:bron:fixture.gd.ed1" xml:lang="nl">
       <milestone unit="volume" n="1"/>
+      <pb n="14" xml:id="v1-p14" facs="https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf#page=24"/>
       <div type="chapter" n="1">
         <head>Inleiding.</head>
       <div type="section" n="3" xml:id="sec-3">

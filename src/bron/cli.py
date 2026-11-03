@@ -33,6 +33,21 @@ def _check(data_repo: Path, base: Path | None, require_base: bool) -> int:
     return 1 if findings else 0
 
 
+def _serve(data_repo: Path, host: str, port: int, base_url: str | None) -> int:
+    import uvicorn
+
+    from bron.dts.app import create_app
+    from bron.dts.index import DataError
+
+    try:
+        app = create_app(data_repo, base_url=base_url or f"http://{host}:{port}")
+    except DataError as error:
+        print(f"bron serve: {error}", file=sys.stderr)
+        return 1
+    uvicorn.run(app, host=host, port=port)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bron",
@@ -52,7 +67,14 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="fail when the base checkout is missing instead of skipping identifier stability",
     )
-    commands.add_parser("serve", help="serve a data repository over DTS 1.0")
+    serve = commands.add_parser("serve", help="serve a data repository over DTS 1.0")
+    serve.add_argument("data_repo", type=Path, help="root of a CapiTainS data repository")
+    serve.add_argument("--host", default="127.0.0.1", help="interface to listen on")
+    serve.add_argument("--port", type=int, default=8000, help="port to listen on")
+    serve.add_argument(
+        "--base-url",
+        help="public URL the endpoints answer under (default: http://<host>:<port>)",
+    )
 
     dts = commands.add_parser("dts", help="DTS conformance tools")
     dts_commands = dts.add_subparsers(dest="dts_command", required=True, metavar="command")
@@ -71,7 +93,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         case "check":
             return _check(args.data_repo, args.base, args.require_base)
         case "serve":
-            return _not_yet("serve")
+            return _serve(args.data_repo, args.host, args.port, args.base_url)
         case "dts":
             return _not_yet("dts verify")
         case "convert":
