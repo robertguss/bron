@@ -8,7 +8,7 @@ Short form: Perseus for the Reformed tradition.
 
 ## Status
 
-Designed; not yet built. Start with [PRD.md](PRD.md). The design lives in [docs/](docs/) (text model, alignment, transcription, translation, provenance) and thirteen ADRs in [docs/decisions/](docs/decisions/). The first data artifact is the GD¹ ↔ GD² structural concordance in [alignments/](alignments/).
+Designed; not yet built. Start with [PRD.md](PRD.md), then [docs/roadmap.md](docs/roadmap.md). The design lives in [docs/](docs/) (text model, alignment, transcription, translation, provenance) and thirteen ADRs in [docs/decisions/](docs/decisions/). The first data artifact is the GD¹ ↔ GD² structural concordance in [alignments/](alignments/).
 
 **First milestone — the Bavinck Diff:** both editions of Herman Bavinck's *Gereformeerde Dogmatiek* (1895–1901 and 1906–1911) transcribed, aligned paragraph by paragraph, with every change rendered in English. The first edition has never been in English.
 
