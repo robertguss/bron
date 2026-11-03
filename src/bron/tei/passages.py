@@ -13,7 +13,7 @@ from pathlib import Path
 from dapytains.tei.document import Document
 from lxml import etree
 
-from bron.tei import NSMAP
+from bron.tei import CTS_REFSDECL, NSMAP
 
 
 class PassageError(Exception):
@@ -35,12 +35,21 @@ class CrefPassage:
     element: etree._Element
 
 
-def cite_structure_units(path: Path) -> list[CitableUnit]:
-    """Every citable unit the default `citeStructure` declares, in document order."""
+def open_document(path: Path) -> Document:
+    """The text as `dapytains` reads it; open it once and reuse it for every passage."""
     try:
-        document = Document(str(path))
+        return Document(str(path))
     except Exception as error:  # dapytains raises bare exceptions on bad declarations
         raise PassageError(f"citeStructure cannot be read: {error}") from error
+
+
+def _document(source: Path | Document) -> Document:
+    return open_document(source) if isinstance(source, Path) else source
+
+
+def cite_structure_units(source: Path | Document) -> list[CitableUnit]:
+    """Every citable unit the default `citeStructure` declares, in document order."""
+    document = _document(source)
     if not document.citeStructure:
         raise PassageError("no citeStructure declaration")
     tree = document.citeStructure.get("default") or next(iter(document.citeStructure.values()))
@@ -58,10 +67,11 @@ def cite_structure_units(path: Path) -> list[CitableUnit]:
     return units
 
 
-def extract_passage(path: Path, ref: str) -> etree._Element:
+def extract_passage(source: Path | Document, ref: str) -> etree._Element:
     """The TEI fragment for one citable unit, as `dapytains` extracts it."""
+    document = _document(source)
     try:
-        return Document(str(path)).get_passage(ref)
+        return document.get_passage(ref)
     except Exception as error:
         raise PassageError(f"passage {ref} cannot be extracted: {error}") from error
 
@@ -72,10 +82,7 @@ _XPATH_WRAPPER = re.compile(r"^#xpath\((.*)\)$", re.DOTALL)
 
 def _cref_xpaths(tree: etree._ElementTree) -> list[str]:
     """The `cRefPattern` XPaths, shallowest level first."""
-    patterns = tree.xpath(
-        "/tei:TEI/tei:teiHeader/tei:encodingDesc/tei:refsDecl[@n='CTS']/tei:cRefPattern",
-        namespaces=NSMAP,
-    )
+    patterns = tree.xpath(f"{CTS_REFSDECL}/tei:cRefPattern", namespaces=NSMAP)
     if not patterns:
         raise PassageError('no <refsDecl n="CTS"> with cRefPattern')
     xpaths = []

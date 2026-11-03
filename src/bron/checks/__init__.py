@@ -7,6 +7,7 @@ from pathlib import Path
 from lxml import etree
 
 from bron.findings import Finding
+from bron.tei.passages import CrefPassage, PassageError, cref_passages
 
 _PARSER = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=True)
 
@@ -18,6 +19,7 @@ class Context:
     root: Path
     _trees: dict[Path, etree._ElementTree | None] = field(default_factory=dict)
     parse_errors: dict[Path, Finding] = field(default_factory=dict)
+    _crefs: dict[Path, list[CrefPassage] | PassageError] = field(default_factory=dict)
 
     def tree(self, path: Path) -> etree._ElementTree | None:
         """The parsed file, or None when it is not well-formed (the schema check reports it)."""
@@ -28,6 +30,21 @@ class Context:
                 self._trees[path] = None
                 self.parse_errors[path] = Finding(path, error.lineno, "parse", error.msg)
         return self._trees[path]
+
+    def cref_passages(self, path: Path) -> list[CrefPassage]:
+        """The passages a parsed text's cRefPatterns cite, computed once; raises PassageError."""
+        if path not in self._crefs:
+            tree = self.tree(path)
+            if tree is None:
+                raise PassageError(f"{path.name} is not well-formed")
+            try:
+                self._crefs[path] = cref_passages(tree)
+            except PassageError as error:
+                self._crefs[path] = error
+        result = self._crefs[path]
+        if isinstance(result, PassageError):
+            raise result
+        return result
 
     def text_files(self) -> list[Path]:
         """TEI texts under `data/`: every XML file except CapiTainS metadata."""

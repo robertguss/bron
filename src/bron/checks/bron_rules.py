@@ -8,7 +8,7 @@ from lxml import etree
 
 from bron.checks import Context
 from bron.findings import Finding
-from bron.tei import NSMAP, XML_ID, XML_LANG, tei
+from bron.tei import NSMAP, XML_LANG, tei, xml_ids
 
 # Attributes whose values are pointers; a `#id` token among them must resolve in the file.
 POINTER_ATTRIBUTES = (
@@ -78,7 +78,7 @@ def _page_break_facs(path: Path, tree: etree._ElementTree) -> Iterator[Finding]:
 
 
 def _pointers(path: Path, tree: etree._ElementTree) -> Iterator[Finding]:
-    ids = {element.get(XML_ID) for element in tree.iter() if element.get(XML_ID)}
+    ids = xml_ids(tree)
     for element in tree.iter():
         if not isinstance(element.tag, str):
             continue
@@ -116,7 +116,7 @@ def _scan(path: Path, element: etree._Element, inherited: str | None) -> Iterato
 def _check_run(
     path: Path, line: int | None, text: str | None, language: str | None
 ) -> Iterator[Finding]:
-    if not text:
+    if not text or text.isascii():
         return
     for script, (characters, languages) in SCRIPTS.items():
         found = characters.search(text)

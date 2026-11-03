@@ -11,7 +11,7 @@ from lxml import etree
 
 from bron.checks import Context
 from bron.findings import Finding
-from bron.tei import NSMAP, XML_LANG, tei
+from bron.tei import CTS_REFSDECL, NSMAP, XML_LANG, tei
 
 CTS_NS = "http://chs.harvard.edu/xmlns/cts"
 CTS = {"ti": CTS_NS}
@@ -153,7 +153,7 @@ def _work(context: Context, folder: Path, textgroup_urn: str) -> Iterator[Findin
 def _text(context: Context, path: Path, urn: str) -> Iterator[Finding]:
     tree = context.tree(path)
     if tree is None:
-        return  # the schema check reports the parse error
+        return
     body = tree.getroot().find(f"{tei('text')}/{tei('body')}")
     if body is None:
         yield Finding(path, None, "cts-body-urn", "the text has no <text>/<body>")
@@ -167,10 +167,7 @@ def _text(context: Context, path: Path, urn: str) -> Iterator[Finding]:
         )
     if not body.get(XML_LANG):
         yield Finding(path, body.sourceline, "cts-body-lang", "<body> needs xml:lang")
-    patterns = tree.xpath(
-        "/tei:TEI/tei:teiHeader/tei:encodingDesc/tei:refsDecl[@n='CTS']/tei:cRefPattern",
-        namespaces=NSMAP,
-    )
+    patterns = tree.xpath(f"{CTS_REFSDECL}/tei:cRefPattern", namespaces=NSMAP)
     if not patterns:
         yield Finding(
             path,

@@ -96,3 +96,19 @@ def _explain(error: ValidationError) -> str:
     if isinstance(error.instance, str | int | float):
         return f"{error.instance!r} {description}"
     return description
+
+
+def load_records(
+    root: Path, relative: Path, schema: str, key: str, check: str, name_key: str
+) -> tuple[list[Any], list[Finding]]:
+    """The list under `key` in an optional data file, or the findings that stop it loading."""
+    path = root / relative
+    if not path.is_file():
+        return [], []
+    file = load_yaml(path, check)
+    if isinstance(file, Finding):
+        return [], [file]
+    problems = list(schema_findings(file, schema, check, name_key))
+    if problems:
+        return [], problems
+    return file.data[key], []

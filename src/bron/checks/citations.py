@@ -9,14 +9,16 @@ from collections import Counter
 from collections.abc import Iterator
 from pathlib import Path
 
+from lxml import etree
+
 from bron.checks import Context
 from bron.findings import Finding
-from bron.tei import NSMAP
+from bron.tei import CTS_REFSDECL, NSMAP
 from bron.tei.passages import (
     PassageError,
     cite_structure_units,
-    cref_passages,
     extract_passage,
+    open_document,
 )
 from bron.tei.text import normalized_text
 
@@ -28,21 +30,20 @@ FORBIDDEN_IN_LABEL = re.compile(r"[\s.:@#\-]")
 def check_citations(context: Context) -> Iterator[Finding]:
     for path in context.text_files():
         tree = context.tree(path)
-        if tree is None or not tree.xpath(
-            "/tei:TEI/tei:teiHeader/tei:encodingDesc/tei:refsDecl[@n='CTS']", namespaces=NSMAP
-        ):
-            continue  # parse and CapiTainS checks report these
-        yield from _text(path, tree)
+        if tree is None or not tree.xpath(CTS_REFSDECL, namespaces=NSMAP):
+            continue
+        yield from _text(context, path, tree)
 
 
-def _text(path: Path, tree) -> Iterator[Finding]:
+def _text(context: Context, path: Path, tree: etree._ElementTree) -> Iterator[Finding]:
     try:
-        crefs = cref_passages(tree)
+        crefs = context.cref_passages(path)
     except PassageError as error:
         yield Finding(path, None, "citation-cref", str(error))
         return
     try:
-        units = cite_structure_units(path)
+        document = open_document(path)
+        units = cite_structure_units(document)
     except PassageError as error:
         yield Finding(path, None, "citation-cite-structure", str(error))
         return
@@ -78,8 +79,9 @@ def _text(path: Path, tree) -> Iterator[Finding]:
     cref_refs = [p.ref for p in crefs]
     unit_refs = [u.ref for u in units]
     if cref_refs != unit_refs:
-        missing_in_cref = [r for r in unit_refs if r not in set(cref_refs)]
-        missing_in_structure = [r for r in cref_refs if r not in set(unit_refs)]
+        cref_set, unit_set = set(cref_refs), set(unit_refs)
+        missing_in_cref = [r for r in unit_refs if r not in cref_set]
+        missing_in_structure = [r for r in cref_refs if r not in unit_set]
         details = []
         if missing_in_cref:
             details.append(f"only citeStructure has {', '.join(missing_in_cref)}")
@@ -99,7 +101,7 @@ def _text(path: Path, tree) -> Iterator[Finding]:
         if counts[passage.ref] > 1:
             continue
         try:
-            extracted = extract_passage(path, passage.ref)
+            extracted = extract_passage(document, passage.ref)
         except PassageError as error:
             yield Finding(path, passage.element.sourceline, "citation-parity", str(error))
             continue

@@ -16,10 +16,10 @@ from pathlib import Path
 from typing import Any
 
 from bron.checks import Check, Context
-from bron.datafiles import load_yaml, schema_findings
+from bron.datafiles import load_records
 from bron.findings import Finding
 from bron.tei import NSMAP
-from bron.tei.passages import PassageError, cref_passages
+from bron.tei.passages import PassageError
 from bron.tei.text import normalized_text
 
 REDIRECTS = Path("identifiers/redirects.yaml")
@@ -76,9 +76,9 @@ def _snapshot(context: Context) -> Snapshot:
         if not text_urn:
             continue
         try:
-            passages = cref_passages(tree)
+            passages = context.cref_passages(path)
         except PassageError:
-            continue  # the citation check reports undeclared or broken citation schemes
+            continue
         parents = {p.parent for p in passages}
         urns = []
         for passage in passages:
@@ -95,31 +95,23 @@ def _snapshot(context: Context) -> Snapshot:
     return snapshot
 
 
-def _load(
-    root: Path, relative: Path, schema: str, key: str, check: str
-) -> tuple[list[dict[str, Any]], list[Finding]]:
-    path = root / relative
-    if not path.is_file():
-        return [], []
-    file = load_yaml(path, check)
-    if isinstance(file, Finding):
-        return [], [file]
-    problems = list(schema_findings(file, schema, check, "urn"))
-    if problems:
-        return [], problems
-    return file.data[key], []
-
-
 def _compare(head_context: Context, base_context: Context) -> Iterator[Finding]:
     root = head_context.root
-    redirects, problems = _load(
-        root, REDIRECTS, "redirects.schema.json", "redirects", "stability-redirects"
+    redirects, problems = load_records(
+        root, REDIRECTS, "redirects.schema.json", "redirects", "stability-redirects", "urn"
     )
     yield from problems
-    edits, problems = _load(root, EDITS, "edits.schema.json", "edits", "stability-edits")
+    edits, problems = load_records(
+        root, EDITS, "edits.schema.json", "edits", "stability-edits", "urn"
+    )
     yield from problems
-    base_redirects, _ = _load(
-        base_context.root, REDIRECTS, "redirects.schema.json", "redirects", "stability-redirects"
+    base_redirects, _ = load_records(
+        base_context.root,
+        REDIRECTS,
+        "redirects.schema.json",
+        "redirects",
+        "stability-redirects",
+        "urn",
     )
 
     head = _snapshot(head_context)

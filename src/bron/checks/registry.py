@@ -39,16 +39,3 @@ def _duplicate_ids(file: YamlFile) -> Iterator[Finding]:
                 f"record {source['id']!r}: id is already used by an earlier record",
             )
         seen.add(source["id"])
-
-
-def _duplicate_ids(file: YamlFile) -> Iterator[Finding]:
-    seen: set[str] = set()
-    for index, source in enumerate(file.data["sources"]):
-        if source["id"] in seen:
-            yield Finding(
-                file.path,
-                file.line("sources", index),
-                "registry",
-                f"record {source['id']!r}: id is already used by an earlier record",
-            )
-        seen.add(source["id"])
