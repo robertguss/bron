@@ -32,6 +32,8 @@ Designed, and the first code is landing: the `bron` tool that validates `bron-da
   uv run bron --help
   uv run pytest
   ```
+
+  A data repository's CI calls the composite action [`.github/actions/validate-data`](.github/actions/validate-data/action.yml), pinned to a full commit SHA, to run every check and verify the DTS resolver against its data.
 - [`bron-data`](https://github.com/robertguss/bron-data) — texts, alignments, lexicon, provenance, registry. Public domain / CC0 for transcriptions and metadata; CC BY 4.0 for authored content. The first data artifact, the GD¹ ↔ GD² structural concordance, lives there.
 
 ## Licensing

@@ -273,3 +273,19 @@ def _text_changes(base: Snapshot, head: Snapshot, edits: list[dict[str, Any]]) -
             f"{urn} now points to substantially different text ({similarity:.0%} similar); "
             f'if this is a deliberate edit, declare it in {EDITS} with sha256: "{digest}"',
         )
+
+
+def new_records(head: Path, base: Path) -> dict[Path, list[dict[str, Any]]]:
+    """The redirect and edit entries in `head` that `base` does not have, per file.
+
+    Merging the pull request that adds them is their review, so they are listed for it.
+    """
+    found: dict[Path, list[dict[str, Any]]] = {}
+    for relative, schema, key in (
+        (REDIRECTS, "redirects.schema.json", "redirects"),
+        (EDITS, "edits.schema.json", "edits"),
+    ):
+        records, _ = load_records(head, relative, schema, key, "summary", "urn")
+        before, _ = load_records(base, relative, schema, key, "summary", "urn")
+        found[relative] = [record for record in records if record not in before]
+    return found

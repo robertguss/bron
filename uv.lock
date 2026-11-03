@@ -73,40 +73,40 @@ source = { editable = "." }
 dependencies = [
     { name = "dapytains" },
     { name = "fastapi" },
+    { name = "httpx2" },
     { name = "jsonschema" },
     { name = "lxml" },
     { name = "pyyaml" },
+    { name = "uritemplate" },
     { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "httpx2" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "ty" },
     { name = "types-lxml" },
-    { name = "uritemplate" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "dapytains", specifier = "==1.0.0rc4" },
     { name = "fastapi", specifier = ">=0.162.0" },
+    { name = "httpx2", specifier = ">=2.16.0" },
     { name = "jsonschema", specifier = ">=4.26.0" },
     { name = "lxml", specifier = ">=6.1.3" },
     { name = "pyyaml", specifier = ">=6.0.3" },
+    { name = "uritemplate", specifier = ">=4.2.0" },
     { name = "uvicorn", specifier = ">=0.54.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "httpx2", specifier = ">=2.16.0" },
     { name = "pytest", specifier = ">=9.2" },
     { name = "ruff", specifier = ">=0.17.3" },
     { name = "ty", specifier = "==0.0.96" },
     { name = "types-lxml", specifier = ">=2026.2.16" },
-    { name = "uritemplate", specifier = ">=4.2.0" },
 ]
 
 [[package]]

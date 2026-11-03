@@ -22,3 +22,24 @@ jobs:
       - run: uv run ruff format --check
       - run: uv run ty check
       - run: uv run pytest
+
+  validate-data:
+    # Runs the action a data repository calls against bron's own fixtures. Fixtures are not
+    # protected data, so each is compared against itself as its base.
+    name: validate-data action (${{ matrix.fixture }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - fixture: data-repo
+            expect: "urn:cts:bron:fixture.gd.ed1:3.2=2. Maar de kerk met hare belĳdenis"
+          - fixture: metadata-only
+            expect: ""
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/validate-data
+        with:
+          data-path: tests/fixtures/${{ matrix.fixture }}
+          base-ref: HEAD
+          expect: ${{ matrix.expect }}

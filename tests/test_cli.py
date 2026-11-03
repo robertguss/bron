@@ -82,3 +82,32 @@ def test_serve_refuses_a_repository_it_cannot_index(
 ) -> None:
     assert main(["serve", str(tmp_path)]) == 1
     assert "has no data/ directory" in capsys.readouterr().err
+
+
+def test_check_summary_lists_the_records_new_since_the_base(
+    data_repo: Path, tmp_path: Path
+) -> None:
+    base = tmp_path / "base"
+    shutil.copytree(data_repo, base)
+    identifiers = data_repo / "identifiers"
+    identifiers.mkdir()
+    urn = "urn:cts:bron:fixture.gd.ed1:3.12"
+    (identifiers / "redirects.yaml").write_text(
+        f'redirects:\n  - urn: "{urn}"\n    status: retired\n'
+        "    reason: Never printed.\n    date: 2026-11-03\n",
+        encoding="utf-8",
+    )
+    summary = tmp_path / "summary.md"
+    main(["check", str(data_repo), "--base", str(base), "--summary", str(summary)])
+    text = summary.read_text(encoding="utf-8")
+    assert "identifiers/redirects.yaml" in text
+    assert f"`{urn}`" in text and "retired" in text and "Never printed." in text
+    assert "identifiers/edits.yaml: none" in text
+
+
+def test_check_summary_without_new_records(data_repo: Path, tmp_path: Path) -> None:
+    base = tmp_path / "base"
+    shutil.copytree(data_repo, base)
+    summary = tmp_path / "summary.md"
+    assert main(["check", str(data_repo), "--base", str(base), "--summary", str(summary)]) == 0
+    assert "identifiers/redirects.yaml: none" in summary.read_text(encoding="utf-8")

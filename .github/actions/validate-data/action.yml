@@ -1,0 +1,138 @@
+name: Validate a Bron data repository
+description: >-
+  Run every bron check on a CapiTainS data repository, compare its citations with a base
+  commit, serve it over DTS 1.0, and verify the resolver's answers three ways.
+
+inputs:
+  base-ref:
+    description: >-
+      Commit to compare citations against: the pull request's base, or the commit before a
+      push. The checkout needs enough history to hold it (fetch-depth: 0).
+    required: true
+  data-path:
+    description: Path of the data repository inside the checkout, the same for head and base.
+    default: "."
+  expect:
+    description: >-
+      Newline-separated URN=TEXT pairs. Each passage must resolve through the resolver to
+      text beginning TEXT.
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+      with:
+        enable-cache: false
+
+    - name: Install bron at this action's commit
+      shell: bash
+      env:
+        BRON_SOURCE: ${{ github.action_path }}/../../..
+      run: |
+        uv sync --locked --no-dev --project "$BRON_SOURCE"
+        echo "BRON_BIN=$(cd "$BRON_SOURCE" && pwd)/.venv/bin" >> "$GITHUB_ENV"
+
+    - name: Check out the base commit
+      shell: bash
+      env:
+        BASE_REF: ${{ inputs.base-ref }}
+        DATA_PATH: ${{ inputs.data-path }}
+      run: |
+        if [ -z "$BASE_REF" ] || ! git rev-parse --verify --quiet "$BASE_REF^{commit}" > /dev/null; then
+          echo "::error::the base commit '$BASE_REF' is not in this checkout, so citations cannot be compared; check out with fetch-depth: 0"
+          exit 1
+        fi
+        git worktree add --detach "$RUNNER_TEMP/bron-base" "$BASE_REF"
+        echo "BRON_HEAD_DATA=$GITHUB_WORKSPACE/$DATA_PATH" >> "$GITHUB_ENV"
+        echo "BRON_BASE_DATA=$RUNNER_TEMP/bron-base/$DATA_PATH" >> "$GITHUB_ENV"
+
+    - name: bron check
+      id: check
+      shell: bash
+      run: |
+        "$BRON_BIN/bron" check "$BRON_HEAD_DATA" --base "$BRON_BASE_DATA" --require-base \
+          --summary "$RUNNER_TEMP/bron-records.md"
+
+    - name: Fetch the DTS validator
+      shell: bash
+      env:
+        # The one pin of the upstream DTS validator. Its JSON Schemas check bron dts verify's
+        # responses, and its test suite runs against the live resolver.
+        VALIDATOR_REPOSITORY: https://github.com/distributed-text-services/validator.git
+        VALIDATOR_COMMIT: b3a826fc35947345245c8f1cc35bd4323f37295e
+      run: |
+        validator="$RUNNER_TEMP/dts-validator"
+        git init -q "$validator"
+        git -C "$validator" fetch -q --depth 1 "$VALIDATOR_REPOSITORY" "$VALIDATOR_COMMIT"
+        git -C "$validator" checkout -q FETCH_HEAD
+        uv venv -q --python 3.15 "$validator/.venv"
+        uv pip install -q --python "$validator/.venv" --require-hashes \
+          -r "$GITHUB_ACTION_PATH/validator-requirements.txt"
+        echo "BRON_VALIDATOR=$validator" >> "$GITHUB_ENV"
+
+    - name: bron dts verify
+      id: verify
+      shell: bash
+      env:
+        EXPECT: ${{ inputs.expect }}
+      run: |
+        args=()
+        while IFS= read -r pair; do
+          if [ -n "${pair//[[:space:]]/}" ]; then args+=(--expect "$pair"); fi
+        done <<< "$EXPECT"
+        "$BRON_BIN/bron" dts verify "$BRON_HEAD_DATA" --schemas "$BRON_VALIDATOR/schemas" "${args[@]}"
+
+    - name: Start the resolver
+      shell: bash
+      run: |
+        "$BRON_BIN/bron" serve "$BRON_HEAD_DATA" --port 8642 > "$RUNNER_TEMP/bron-serve.log" 2>&1 &
+        echo $! > "$RUNNER_TEMP/bron-serve.pid"
+        for _ in $(seq 1 120); do
+          if curl -sf http://127.0.0.1:8642/ > /dev/null; then exit 0; fi
+          if ! kill -0 "$(cat "$RUNNER_TEMP/bron-serve.pid")" 2> /dev/null; then break; fi
+          sleep 1
+        done
+        cat "$RUNNER_TEMP/bron-serve.log"
+        echo "::error::the resolver did not start"
+        exit 1
+
+    - name: Upstream DTS validator
+      id: upstream
+      shell: bash
+      run: |
+        if ! find "$BRON_HEAD_DATA/data" -name '*.xml' ! -name '__cts__.xml' | grep -q .; then
+          echo "::notice::The upstream DTS validator was skipped: the repository holds no text, and the validator cannot run without a Resource."
+          echo "skipped=true" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+        cd "$BRON_VALIDATOR"
+        .venv/bin/python -m pytest tests --entry-endpoint=http://127.0.0.1:8642/ \
+          -p no:cacheprovider -o log_cli=false -rA
+
+    - name: Stop the resolver
+      if: always()
+      shell: bash
+      run: |
+        if [ -f "$RUNNER_TEMP/bron-serve.pid" ]; then kill "$(cat "$RUNNER_TEMP/bron-serve.pid")" || true; fi
+
+    - name: Write the verification summary
+      if: always()
+      shell: bash
+      env:
+        CHECK: ${{ steps.check.outcome }}
+        VERIFY: ${{ steps.verify.outcome }}
+        UPSTREAM: ${{ steps.upstream.outputs.skipped == 'true' && 'skipped, the repository holds no text' || steps.upstream.outcome }}
+      run: |
+        {
+          echo "## Bron data validation"
+          echo
+          echo "| Step | Result |"
+          echo "|---|---|"
+          echo "| bron check, with citations compared against the base | ${CHECK:-not run} |"
+          echo "| bron dts verify | ${VERIFY:-not run} |"
+          echo "| upstream DTS validator, nothing deselected | ${UPSTREAM:-not run} |"
+          echo
+          if [ -f "$RUNNER_TEMP/bron-records.md" ]; then cat "$RUNNER_TEMP/bron-records.md"; fi
+        } >> "$GITHUB_STEP_SUMMARY"
+        if [ -d "$RUNNER_TEMP/bron-base" ]; then git worktree remove --force "$RUNNER_TEMP/bron-base"; fi
