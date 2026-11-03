@@ -85,7 +85,7 @@ Full findings with sources: `research/2026-11-02-fact-checks.md`.
 2. **GD² numbering:** yes — subparagraphs 1–580 continuous (with `427a`/`427b`), Par. 1–62 (13 twice); the Baker English retains the `#` numbers. Cite as `#`.
 3. **Delpher IIIF:** not public as far as can be found (KB joined the IIIF Consortium Feb 2025, intends to publish). Bron hosts its own IIIF for the scans it uses; revisit later.
 4. **Augustine URNs:** textgroup `urn:cts:latinLit:stoa0040`; work URNs exist for most works; edition coverage uneven. Reuse work URNs, add `bron-lat1` editions where none exist.
-5. **DTS:** 1.0 published 13 Feb 2026; Level 0 static-site conformance exists. Bron targets DTS 1.0 Level 0 from static files.
+5. **DTS:** 1.0 published 13 Feb 2026; Level 0 static-site conformance exists. Static files cannot answer Document ranges or every `down` value, so Bron serves DTS 1.0 Level 0 from a small read-only resolver over the TEI (ADR 0015).
 
 Scheme constraint learned: passage identifiers may be non-integer (`427a`); the `refsDecl` and URL patterns must allow it.
 

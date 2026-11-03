@@ -32,6 +32,8 @@ Stand-off TEI link files in `bron-data/alignments/`, one per pair of versions, e
 
 Word-level diffs are computed at display time from the aligned sentences and never stored.
 
+`insert` and `delete` links carry exactly one target, the unit that exists on one side only. TEI's Schematron rule for `<link>` requires two or more targets, so this is a documented Bron deviation (ADR 0017): Bron's validator allows one target only for these two types, and each alignment file states the deviation in its `encodingDesc`.
+
 ## 3. Levels
 
 1. **Structure:** Par ↔ § (GD²'s 62 Par. against GD¹'s 56 §§). Built first, largely from the tables of contents; moves and insertions show up here (e.g. Providence: GD¹ §35 → GD² Par. 39; GD² Par. 9, 12, 13, 18 as additions).
