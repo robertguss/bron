@@ -6,7 +6,12 @@ readme = "README.md"
 license = "Apache-2.0"
 authors = [{ name = "Robert Guss" }]
 requires-python = ">=3.15"
-dependencies = []
+dependencies = [
+    "dapytains==1.0.0rc4",
+    "jsonschema>=4.26.0",
+    "lxml>=6.1.3",
+    "pyyaml>=6.0.3",
+]
 
 [project.scripts]
 bron = "bron.cli:main"
@@ -21,7 +26,13 @@ dev = [
     "ruff>=0.17.3",
     # ty is pre-1.0 and its rules change between releases: bump deliberately.
     "ty==0.0.96",
+    "types-lxml>=2026.2.16",
 ]
+
+[tool.uv]
+# dapytains 1.0.0rc4 pins saxonche==12.9.0, which ships no Python 3.15 wheels.
+# 13.1.1 does, and enumerates and extracts passages the same way on our texts.
+override-dependencies = ["saxonche==13.1.1"]
 
 [tool.ruff]
 line-length = 100
@@ -35,4 +46,5 @@ python-version = "3.15"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = ["-ra", "--strict-markers"]

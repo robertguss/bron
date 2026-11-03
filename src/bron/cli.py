@@ -7,11 +7,26 @@ printed one per line as `file:line: check-id: message` so CI logs stay greppable
 import argparse
 import sys
 from collections.abc import Sequence
+from pathlib import Path
 
 
 def _not_yet(name: str) -> int:
     print(f"bron {name}: not available yet", file=sys.stderr)
     return 2
+
+
+def _check(data_repo: Path) -> int:
+    from bron.checks.suite import check_repository
+
+    if not data_repo.is_dir():
+        print(f"bron check: {data_repo} is not a directory", file=sys.stderr)
+        return 2
+    findings = check_repository(data_repo)
+    root = data_repo.resolve()
+    for finding in findings:
+        print(finding.render(root))
+    print(f"{len(findings)} finding{'s' if len(findings) != 1 else ''}", file=sys.stderr)
+    return 1 if findings else 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -21,7 +36,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     commands = parser.add_subparsers(dest="command", required=True, metavar="command")
 
-    commands.add_parser("check", help="validate a data repository")
+    check = commands.add_parser("check", help="validate a data repository")
+    check.add_argument("data_repo", type=Path, help="root of a CapiTainS data repository")
     commands.add_parser("serve", help="serve a data repository over DTS 1.0")
 
     dts = commands.add_parser("dts", help="DTS conformance tools")
@@ -39,7 +55,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     match args.command:
         case "check":
-            return _not_yet("check")
+            return _check(args.data_repo)
         case "serve":
             return _not_yet("serve")
         case "dts":
