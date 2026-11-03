@@ -138,9 +138,9 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Citation graph across works.
 
 ### 10.8 Provenance and review
-- Every translated unit carries a state: `machine-draft` → `human-reviewed` → `anchored` (to a public-domain published translation). States are visible in the reader.
-- Reviewer workflow: a Dutch/Latin reader sees original + draft, approves or corrects a paragraph in seconds; corrections flow to the lexicon and examples.
-- Possible model: seminary doctoral seminars reading Bavinck use the draft as the assignment; review happens as a byproduct of reading that would occur anyway.
+- **Designed 2026-11-02.** See `docs/provenance.md` and ADR 0009.
+- Two axes per sentence: origin (`@resp`: run, named human, public-domain translation) and state (XLIFF 2: `translated` → `reviewed` → `final`, via `@ana`). Vetted reviewers with promotion by track record; git PRs as the provenance ledger; review actions produce the lexicon proposals, MQM judge data and future examples.
+- Seminary seminars reading Bavinck use the draft as the assignment: students propose, the professor approves.
 
 ### 10.9 Reader
 - Parallel view: scan | transcription | English. Tappable lemmas with glosses. Provenance badges. Edition diff view. Ask-an-agent about a passage. Permanent citation links.
@@ -207,7 +207,7 @@ Each is a session of its own; order is a proposal.
 3. ~~**Transcription**~~ — done 2026-11-02 for Bavinck; see `docs/transcription.md` and ADR 0007. Early-modern print remains open for the scholastics phase.
 4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
 5. ~~**Translation and lexicon**~~ — done 2026-11-02; see `docs/translation.md` and ADR 0008.
-6. **Provenance and review** — state model, reviewer UI, how corrections feed back.
+6. ~~**Provenance and review**~~ — done 2026-11-02; see `docs/provenance.md` and ADR 0009.
 7. **Reader** — parallel view, lemma/gloss, diff view, agent-ask, static publishing.
 8. **Partners and community** — outreach to NRI, Bavinck Institute, Junius; contribution model; governance.
 9. **Infrastructure** — hosting (personal VPS), pipeline runtime, cost of inference at corpus scale.
