@@ -122,8 +122,8 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Citations follow each work's scholarly convention; TEI P5 (CapiTainS) encoding; CTS URNs under `bron`; DTS resolution; IIIF scan links; readable canonical URLs; latest for reading, pinned (with Zenodo-DOI'd releases) for citing.
 
 ### 10.4 Alignment
-- Edition-to-edition alignment (Bavinck 1st vs 2nd) at paragraph and sentence level, with change classification (added / removed / revised / moved).
-- Source-to-translation alignment (original ↔ English).
+- **Designed 2026-11-02.** See `docs/alignment.md` and ADR 0006.
+- Stand-off TEI link files; levels structure → unit → sentence; SRX segmentation; edition diff scored against a human gold sample; translation aligned by construction (hybrid: paragraph translation with mandatory sentence-ID reconciliation).
 
 ### 10.5 Translation layer
 - Agentic translation using a **controlled lexicon** of technical terms where each rendering is an explicit, documented, corpus-wide decision.
@@ -207,7 +207,7 @@ Each is a session of its own; order is a proposal.
 1. ~~**Text model and citation scheme**~~ — done 2026-11-02; see `docs/text-model.md`. Open facts to verify are listed there.
 2. **Corpus and rights** — inventory of Bavinck sources via NRI bibliography; what's translated; source terms; rights registry design.
 3. **Transcription** — tool choice for modern print now and early-modern print later; TEI output; quality measurement.
-4. **Alignment** — edition diff method and change taxonomy.
+4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
 5. **Translation and lexicon** — model, prompts, lexicon format, calibration protocol, drift metrics.
 6. **Provenance and review** — state model, reviewer UI, how corrections feed back.
 7. **Reader** — parallel view, lemma/gloss, diff view, agent-ask, static publishing.
