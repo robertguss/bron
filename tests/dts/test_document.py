@@ -144,3 +144,14 @@ def test_invalid_combinations_and_unknown_refs(client: TestClient) -> None:
     assert document(client, ref="3.12").status_code == 404
     assert document(client, ref="3.2", tree="pages").status_code == 404
     assert document(client, ref="3.2", tree="default").status_code == 200
+
+
+def test_a_range_of_subparagraphs_never_returns_a_whole_section(client: TestClient) -> None:
+    fragment = wrapper(document(client, start="3.1", end="4.2"))
+    assert subparagraphs(fragment) == [*(str(n) for n in range(1, 12)), "1", "2"]
+    assert "§ 4." not in normalized_text(fragment)
+
+
+def test_a_range_of_sections_returns_them_whole(client: TestClient) -> None:
+    fragment = wrapper(document(client, start="3", end="4"))
+    assert subparagraphs(fragment) == ["3", "4"]

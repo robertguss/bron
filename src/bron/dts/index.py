@@ -79,11 +79,13 @@ class Resource:
         ]
 
     def covering(self, start: Unit, end: Unit) -> list[Unit]:
-        """The fewest whole units that hold exactly the text from `start` through `end`."""
+        """The fewest whole units, at the shallower cited level or below, that hold the text
+        from `start` through `end`."""
+        shallowest = min(start.level, end.level)
         chosen: list[Unit] = []
         covered_until = -1
         for unit in self.units[start.ordinal : end.last + 1]:
-            if unit.ordinal <= covered_until or unit.last > end.last:
+            if unit.ordinal <= covered_until or unit.last > end.last or unit.level < shallowest:
                 continue
             chosen.append(unit)
             covered_until = unit.last

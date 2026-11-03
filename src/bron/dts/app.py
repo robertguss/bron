@@ -147,8 +147,6 @@ def _lookup(
     if (start is None) != (end is None):
         return Problem(400, "Bad Request", "start and end must be given together")
     text = index.resource(resource)
-    if text is None:
-        return Problem(404, "Not Found", f"no resource {resource}")
     if tree is not None and tree != DEFAULT_TREE:
         return Problem(404, "Not Found", f"{resource} has no citation tree {tree!r}")
 
@@ -156,10 +154,13 @@ def _lookup(
     for name, value in (("ref", ref), ("start", start), ("end", end)):
         if value is None:
             continue
-        unit = text.by_ref.get(value)
+        # A text removed whole still answers for the identifiers recorded as withdrawn.
+        unit = text.by_ref.get(value) if text else None
         if unit is None:
             return _gone(index, base, endpoint, request, name, f"{resource}:{value}")
         anchors[name] = unit
+    if text is None:
+        return Problem(404, "Not Found", f"no resource {resource}")
     if "start" in anchors and anchors["start"].ordinal > anchors["end"].ordinal:
         return Problem(400, "Bad Request", "start comes after end in the text")
     return text, anchors

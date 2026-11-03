@@ -107,3 +107,28 @@ def test_retired_ref_answers_410_with_a_tombstone(
         assert body["urn"] == f"{RESOURCE}:3.2"
         assert body["reason"] == "Not part of the printed text."
         assert body["date"] == "2026-11-03"
+
+
+def test_a_text_removed_whole_still_answers_for_its_retired_identifiers(
+    serve: Client, data_repo: Path
+) -> None:
+    (data_repo / EDITION).unlink()
+    work = data_repo / "data/fixture/gd/__cts__.xml"
+    text = work.read_text(encoding="utf-8")
+    start = text.index("  <ti:edition")
+    work.write_text(text[:start] + text[text.index("</ti:edition>") + 14 :], encoding="utf-8")
+    (data_repo / "identifiers").mkdir()
+    (data_repo / "identifiers" / "redirects.yaml").write_text(
+        f"""redirects:
+  - urn: "{RESOURCE}:3.2"
+    status: retired
+    reason: The edition was withdrawn.
+    date: 2026-11-03
+""",
+        encoding="utf-8",
+    )
+    client = serve(data_repo)
+    response = client.get("/api/dts/document", params={"resource": RESOURCE, "ref": "3.2"})
+    assert response.status_code == 410
+    unrecorded = client.get("/api/dts/document", params={"resource": RESOURCE, "ref": "3.3"})
+    assert unrecorded.status_code == 404

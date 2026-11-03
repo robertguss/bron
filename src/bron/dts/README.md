@@ -28,8 +28,9 @@ names the underlying problems.
   `down` levels below the deeper.
 - **Document.** Without `ref` or `start`/`end`, the whole TEI file. With them, a TEI
   document whose `<dts:wrapper>` holds the cited units in document order. A range holds
-  the fewest whole units that cover `start` through `end`, so one that crosses a section
-  boundary holds the subparagraphs on each side, not the sections that contain them.
+  the fewest whole units, at the shallower of the two cited levels or below, that cover
+  `start` through `end`. So a range of subparagraphs that crosses a section boundary holds
+  the subparagraphs on each side, never the sections that contain them.
   `mediaType` other than `application/tei+xml` is 404. Responses carry `Link: <{base}/collection?id=<urn>>; rel="collection"`.
 - **Page anchor.** Each fragment opens with the page break it begins on: the last `<pb>`
   at or before its start. When the fragment's own first content is a `<pb>`, that one
