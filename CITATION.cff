@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below. For the texts and translations, cite the bron-data repository or a pinned passage permalink."
+title: "Bron"
+type: software
+authors:
+  - family-names: Guss
+    given-names: Robert
+  - name: "Bron contributors"
+repository-code: "https://github.com/robertguss/bron"
+license: "Apache-2.0"
+abstract: "An open commons giving English readers the primary sources of the Reformed and neo-Calvinist tradition in their original languages, with provenance on every translation and permanent citations."

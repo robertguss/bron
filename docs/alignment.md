@@ -13,7 +13,7 @@
 
 ## 2. Representation
 
-Stand-off TEI link files, one per pair of versions, e.g. `alignments/bavinck.gd.ed1--bavinck.gd.ed2.xml`, `alignments/bavinck.gd.ed2--bavinck.gd.ed2.bron-eng.xml`.
+Stand-off TEI link files in `bron-data/alignments/`, one per pair of versions, e.g. `bavinck.gd.ed1--ed2.structure.xml`, `alignments/bavinck.gd.ed2--bavinck.gd.ed2.bron-eng.xml`.
 
 ```xml
 <linkGrp type="edition" corresp="urn:cts:bron:bavinck.gd.ed1 urn:cts:bron:bavinck.gd.ed2">

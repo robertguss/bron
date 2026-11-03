@@ -177,9 +177,8 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 - **Sources:** public domain originals only (Kuyper, Bavinck, Calvin, Augustine, pre-1931 publications in the US; author-death+70 in the EU).
 - **Never ship** copyrighted translations (Bolt/Vriend, Battles, Giger/Dennison, New City Press, Lexham). Use privately for evaluation only.
-- **Data license:** CC BY 4.0 or CC0 for texts, alignments, lexicon, translations.
-- **Code license:** Apache-2.0 or MIT.
-- **Repos:** data and code separated so the texts can outlive the software.
+- **Licenses (decided 2026-11-02, ADR 0014):** code Apache-2.0; transcriptions of public-domain works and metadata carry the Public Domain Mark with residual rights waived under CC0; translations, lexicon, alignments and documentation CC BY 4.0.
+- **Repos:** `bron` (code) and `bron-data` (texts, alignments, lexicon, provenance, registry), so the texts can outlive the software.
 - **Ownership:** Robert's personal project — personal GitHub org, personal infrastructure, personal time. Obtain a short written acknowledgement from Westminster that this is an outside project, since the subject sits inside the employer's domain. Contributors (including faculty/students) contribute under the open license like anyone else (DCO or light CLA).
 - **Source terms:** verify reuse terms for NRI sources site, Delpher, DBNL, e-rara before bulk ingestion.
 

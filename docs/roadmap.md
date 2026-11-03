@@ -5,8 +5,8 @@
 The thread through all of it: one chapter of Bavinck, both editions, end to end, before anything scales. GD² Par. 23–25 (`#161–177`, the knowability of God) and its GD¹ counterpart §20–22 are the chosen slice, because the same seventeen subparagraphs serve the OCR ground truth, the translation judge, and the alignment gold sample, so a single reviewer ask covers all three.
 
 ## M0 — Scaffolding
-- **A:** `bron` repo layout for code; data repo `bron-data` created the moment the first TEI file exists (R creates it on GitHub); CI with TEI schema, CapiTainS, DTS validators and the identifier-stability check (ADR 0011).
-- **R:** choose licenses (Apache-2.0 or MIT; CC BY 4.0 or CC0); obtain the written outside-project acknowledgement from Westminster (PRD §13); confirm Delpher, DBNL and NRI reuse terms (A drafts the registry records, R confirms).
+- **A:** `bron` repo layout for code; `bron-data` layout per CapiTainS (created 2026-11-02; licenses in place, ADR 0014); CI with TEI schema, CapiTainS, DTS validators and the identifier-stability check (ADR 0011).
+- **R:** obtain the written outside-project acknowledgement from Westminster (PRD §13); confirm Delpher, DBNL and NRI reuse terms (A drafts the registry records, R confirms).
 - **Done when:** an empty but valid CapiTainS data repo passes CI, and the three terms checks are recorded (ADR 0012).
 
 ## M1 — GD¹ in TEI
@@ -59,7 +59,7 @@ Kuyper; Calvin as the Latin calibration set (*Calvini Opera* with public-domain 
 
 ## What must not slip
 - No volume published without its CER; no draft public below the gate; no `reviewed` without a named vetted reviewer.
-- Identifiers never renumbered. Licenses chosen before the first data release. Bolt's text never in a repo.
+- Identifiers never renumbered. Bolt's text never in a repo.
 
 ## Deliberately absent
 Dates, team size, and hours. The order is the plan; the pace is Robert's.
