@@ -143,8 +143,8 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Seminary seminars reading Bavinck use the draft as the assignment: students propose, the professor approves.
 
 ### 10.9 Reader
-- Parallel view: scan | transcription | English. Tappable lemmas with glosses. Provenance badges. Edition diff view. Ask-an-agent about a passage. Permanent citation links.
-- Static-first publishing from the data repo; the app is replaceable.
+- **Designed 2026-11-02.** See ADR 0010.
+- Static-first pages from the TEI (same build emits DTS Level 0 and a static search index); embedded IIIF viewer; desktop three columns, phone default interleaved sentence pairs with reader-chosen English-only mode; lookups link to the WNT and Logeion; provenance badges per sentence; "cite this" in SBL style with URL, pinned URL and URN; ask-an-agent as a passage-bound tool that must cite passage IDs.
 
 ### 10.10 Community and partners
 - NRI (Utrecht), Bavinck Institute (Calvin Seminary), Junius Institute / PRDL, CCEL as precedent and possible ally, Westminster faculty and students as contributors.
@@ -208,7 +208,7 @@ Each is a session of its own; order is a proposal.
 4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
 5. ~~**Translation and lexicon**~~ — done 2026-11-02; see `docs/translation.md` and ADR 0008.
 6. ~~**Provenance and review**~~ — done 2026-11-02; see `docs/provenance.md` and ADR 0009.
-7. **Reader** — parallel view, lemma/gloss, diff view, agent-ask, static publishing.
+7. ~~**Reader**~~ — done 2026-11-02; see ADR 0010.
 8. **Partners and community** — outreach to NRI, Bavinck Institute, Junius; contribution model; governance.
 9. **Infrastructure** — hosting (personal VPS), pipeline runtime, cost of inference at corpus scale.
 10. ~~**Name**~~ — decided 2026-11-02: **Bron**. The first milestone is "the Bavinck Diff" underneath it.
