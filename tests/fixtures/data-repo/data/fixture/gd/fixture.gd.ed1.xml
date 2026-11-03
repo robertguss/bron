@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Gereformeerde Dogmatiek (test fixture)</title>
+        <author>Herman Bavinck</author>
+      </titleStmt>
+      <publicationStmt>
+        <publisher>Bron</publisher>
+        <availability status="free">
+          <licence target="https://creativecommons.org/publicdomain/mark/1.0/">Public Domain Mark 1.0</licence>
+        </availability>
+      </publicationStmt>
+      <sourceDesc>
+        <p>A trimmed excerpt of the Project Gutenberg transcription (#51052), used only to test Bron's tools.</p>
+      </sourceDesc>
+    </fileDesc>
+    <encodingDesc>
+      <refsDecl n="CTS">
+        <cRefPattern n="subparagraph" matchPattern="(\w+)\.(\w+)" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body//tei:div[@type='section'][@n='$1']/tei:div[@type='subparagraph'][@n='$2'])"/>
+        <cRefPattern n="section" matchPattern="(\w+)" replacementPattern="#xpath(/tei:TEI/tei:text/tei:body//tei:div[@type='section'][@n='$1'])"/>
+      </refsDecl>
+      <refsDecl default="true">
+        <citeStructure unit="section" match="/TEI/text/body//div[@type='section']" use="@n">
+          <citeStructure unit="subparagraph" match="div[@type='subparagraph']" use="@n" delim="."/>
+        </citeStructure>
+      </refsDecl>
+    </encodingDesc>
+  </teiHeader>
+  <text>
+    <body n="urn:cts:bron:fixture.gd.ed1" xml:lang="nl">
+      <milestone unit="volume" n="1"/>
+      <div type="chapter" n="1">
+        <head>Inleiding.</head>
+      <div type="section" n="3" xml:id="sec-3">
+        <head>§ 3. Methode der Dogmatiek.</head>
+        <div type="subparagraph" n="1">
+          <head>A. Methode.</head>
+          <p>1. Onder methode der dogmatiek is in ruimen zin te verstaan de wĳze, waarop de dogmatische stof verkregen en behandeld wordt. Drie zaken komen daarbĳ in aanmerking: de Schrift, de belĳdenis der kerk en het persoonlĳk geloof van den dogmaticus.</p>
+        </div>
+        <div type="subparagraph" n="2">
+          <pb n="15" xml:id="v1-p15" facs="https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf#page=25"/>
+          <p>2. Maar de kerk met hare belĳdenis kan toch het principium der dogmatiek niet zĳn. De Grieksche en Roomsche kerk hebben de traditie wel voor onfeilbaar verklaard, maar ten allen tĳde hebben kerken, secten en richtingen, aan wie het christelĳk karakter niet kon worden ontzegd, van die overlevering een beroep gedaan op de H.</p>
+        </div>
+        <div type="subparagraph" n="3">
+          <p>3. Maar ook daarmêe is de mogelĳkheid van conflict tusschen de leer der Schrift en de persoonlĳke overtuiging van den dogmaticus nog niet weggenomen.</p>
+        </div>
+        <div type="subparagraph" n="4">
+          <p>4. Reeds dit overzicht van de drie dogmatische richtingen maakt het duidelĳk, dat geen der drie de andere ontberen kan. Elk wordt op zichzelve genomen eenzĳdig en vervalt tot dwaling.</p>
+        </div>
+        <div type="subparagraph" n="5">
+          <p>5. Rome heeft deze onmogelĳkheid eener religieuse en zedelĳke <pb n="18" xml:id="v1-p18" facs="https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf#page=28"/> autonomie uitnemend begrepen en daarom den mensch op straffe van de zaligheid zĳner ziel gebonden aan de onfeilbare kerk.</p>
+        </div>
+        <div type="subparagraph" n="6">
+          <p>6. Zoo schĳnt alleen die methode de ware te zĳn, welke door de bĳbelsche theologen toegepast wordt. Maar ook deze richting lĳdt aan groote eenzĳdigheid.</p>
+        </div>
+        <div type="subparagraph" n="7">
+          <p>7. Eene goede methode der dogmatiek dient dus met alle drie gegevens, met Schrift, kerk en persoonlĳke overtuiging rekening <pb n="22" xml:id="v1-p22" facs="https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf#page=32"/> te houden. Dan alleen is het mogelĳk, om voor grove eenzĳdigheden te worden bewaard.</p>
+          <p>Dogmatiek is er dus alleen mogelĳk voor hem, die in gemeenschap des geloofs staat met eene of andere christelĳke kerk. [23] Dit ligt ook in den aard van het godsdienstig geloof.</p>
+        </div>
+        <div type="subparagraph" n="8">
+          <p>8. Maar daarmee is de dogmenhistorie en de belĳdenis der kerk nog niet verheven tot een onfeilbaar gezag. Er is onderscheid tusschen den weg, waarlangs de dogmaticus gevormd wordt, en het beginsel, waaruit de dogmatiek haar stof ontvangt.</p>
+        </div>
+        <div type="subparagraph" n="9">
+          <p>9. Daarmede is echter het persoonlĳk karakter der leerstellige Godgeleerdheid niet te niet gedaan. Dat kan en mag niet, wĳl dogmatiek niet is een historisch referaat, maar eene aanwĳzing van wat op religieus gebied als waarheid gelden moet. Zoo leert ook de Schrift, dat de Geest der waarheid de gemeente leidt<note place="bottom" n="1">Joh. 16:13.</note>.</p>
+        </div>
+        <div type="subparagraph" n="10">
+          <p>10. Zoodra de dogmatiek opkwam, was er ook eene indeeling noodig van de stof welke in haar behandeld werd. Die indeeling was in den beginne hoogst eenvoudig. De Schrift is <foreign xml:lang="grc">αὐτοπιστος</foreign>, judex controversiarum.</p>
+        </div>
+        <div type="subparagraph" n="11">
+          <p>11. De indeeling, welke Lombardus in de Middeleeuwen koos, herinnert meer aan die van Origenes, Theodoretus en Damascenus. Zĳne Sententiae zĳn in vier boeken verdeeld.</p>
+        </div>
+      </div>
+      <div type="section" n="4" xml:id="sec-4">
+        <head>§ 4. Indeeling der dogmatiek.</head>
+        <div type="subparagraph" n="1">
+          <pb n="31" xml:id="v1-p31" facs="https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf#page=41"/><p>1. Deze indeelingen werden door de latere Roomsche theologen meestal overgenomen, niet alleen in de commentaren, die bĳv. door vele middeleeuwsche theologen en ook later nog door Estius e.</p>
+        </div>
+        <div type="subparagraph" n="2">
+          <p>2. De dogmatiek bĳ de Hervormers was van huis uit anti-scholastisch en werd eerst voorgedragen in zeer eenvoudigen en practischen vorm. Melanchton’s Loci, verschenen in 1521, ontstonden uit voorlezingen over Paulus’ brief aan de Romeinen.</p>
+        </div>
+      </div>
+      </div>
+    </body>
+  </text>
+</TEI>

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertguss/bron/schemas/edits.schema.json",
+  "title": "Declared text edits",
+  "description": "identifiers/edits.yaml in a Bron data repository: substantial changes to the text an unchanged identifier points to, each bound to the exact new text by its SHA-256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["edits"],
+  "properties": {
+    "edits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["urn", "reason", "date", "sha256"],
+        "properties": {
+          "urn": {"type": "string", "pattern": "^urn:cts:[^:]+:[^:]+:[^:]+$"},
+          "reason": {"type": "string", "minLength": 1},
+          "date": {"type": "string", "format": "date"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

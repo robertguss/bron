@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertguss/bron/schemas/registry-sources.schema.json",
+  "title": "Bron rights registry: source copies",
+  "$comment": "A `description` on a subschema is the plain-words message bron check prints when that subschema fails.",
+  "type": "object",
+  "required": ["sources"],
+  "additionalProperties": false,
+  "properties": {
+    "sources": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/source" }
+    }
+  },
+  "$defs": {
+    "uri": {
+      "description": "must be an http or https URI",
+      "type": "string",
+      "pattern": "^https?://\\S+$"
+    },
+    "source": {
+      "type": "object",
+      "required": ["id", "work", "holder", "holder_id", "edition", "rights", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "work": {
+          "description": "must be the CTS URN of a work, such as urn:cts:bron:bavinck.gd",
+          "type": "string",
+          "pattern": "^urn:cts:[A-Za-z0-9-]+:[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+        },
+        "holder": { "type": "string", "minLength": 1 },
+        "holder_id": {
+          "description": "must be the holding institution's identifier, as text or a number",
+          "type": ["string", "integer"],
+          "minLength": 1
+        },
+        "edition": { "type": "string", "minLength": 1 },
+        "printing": { "type": "string" },
+        "rights": {
+          "description": "must be a rightsstatements.org statement URI or the Creative Commons Public Domain Mark or CC0 URI",
+          "type": "string",
+          "pattern": "^(https?://rightsstatements\\.org/vocab/(InC|InC-OW-EU|InC-EDU|InC-NC|InC-RUU|NoC-CR|NoC-NC|NoC-OKLR|NoC-US|CNE|UND|NKC)/1\\.0/|https?://creativecommons\\.org/publicdomain/(mark|zero)/1\\.0/)$"
+        },
+        "url": { "$ref": "#/$defs/uri" },
+        "sha256": {
+          "description": "must be 64 lowercase hexadecimal characters",
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mirrors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["url", "kind", "status"],
+            "additionalProperties": false,
+            "properties": {
+              "url": { "$ref": "#/$defs/uri" },
+              "kind": { "enum": ["release-asset", "wayback"] },
+              "status": { "enum": ["ok", "failed", "pending"] }
+            }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}
