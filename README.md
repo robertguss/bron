@@ -8,7 +8,7 @@ Short form: Perseus for the Reformed tradition.
 
 ## Status
 
-Design stage. Nothing is built yet. Start with [PRD.md](PRD.md).
+Design stage. Nothing is built yet. Start with [PRD.md](PRD.md), then [docs/text-model.md](docs/text-model.md). Decisions are recorded as ADRs in [docs/decisions/](docs/decisions/).
 
 **First milestone — the Bavinck Diff:** both editions of Herman Bavinck's *Gereformeerde Dogmatiek* (1895–1901 and 1906–1911) transcribed, aligned paragraph by paragraph, with every change rendered in English. The first edition has never been in English.
 

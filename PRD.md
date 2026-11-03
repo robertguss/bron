@@ -62,6 +62,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 ## 8. Principles
 
+0. **Convention over invention.** Where a scholarly, digital-humanities, web, or industry convention exists, Bron adopts it. Bron invents only where nothing exists, and documents why. (ADR 0001)
 1. **The data is the project.** TEI texts, alignments, lexicon, translations live in git under an open license. UIs come and go (Perseus has outlived three).
 2. **Original always visible.** No English is ever shown without its source beside it.
 3. **Nothing is trusted by default.** Every translated unit carries a provenance state. Review is explicit, never assumed.
@@ -116,9 +117,8 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Expect the NRI PDFs' existing OCR layers to be mediocre; re-read everything.
 
 ### 10.3 Text model and citation scheme
-- Stable identifiers for work / edition / division / paragraph / sentence (CTS-style URNs or equivalent).
-- Versioned texts; identifiers survive corrections.
-- This is the one decision that cannot be fixed later. Design it first.
+- **Designed 2026-11-02.** See `docs/text-model.md` and ADRs 0002–0005.
+- Citations follow each work's scholarly convention; TEI P5 (CapiTainS) encoding; CTS URNs under `bron`; DTS resolution; IIIF scan links; readable canonical URLs; latest for reading, pinned (with Zenodo-DOI'd releases) for citing.
 
 ### 10.4 Alignment
 - Edition-to-edition alignment (Bavinck 1st vs 2nd) at paragraph and sentence level, with change classification (added / removed / revised / moved).
@@ -203,7 +203,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 Each is a session of its own; order is a proposal.
 
-1. **Text model and citation scheme** — identifiers, versioning, TEI conventions. (Unfixable later; do first.)
+1. ~~**Text model and citation scheme**~~ — done 2026-11-02; see `docs/text-model.md`. Open facts to verify are listed there.
 2. **Corpus and rights** — inventory of Bavinck sources via NRI bibliography; what's translated; source terms; rights registry design.
 3. **Transcription** — tool choice for modern print now and early-modern print later; TEI output; quality measurement.
 4. **Alignment** — edition diff method and change taxonomy.
