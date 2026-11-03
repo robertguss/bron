@@ -144,7 +144,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 ### 10.9 Reader
 - **Designed 2026-11-02.** See ADR 0010.
-- Static-first pages from the TEI (same build emits DTS Level 0 and a static search index); embedded IIIF viewer; desktop three columns, phone default interleaved sentence pairs with reader-chosen English-only mode; lookups link to the WNT and Logeion; provenance badges per sentence; "cite this" in SBL style with URL, pinned URL and URN; ask-an-agent as a passage-bound tool that must cite passage IDs.
+- Static-first pages from the TEI (same build emits a static search index; DTS 1.0 is served by a small read-only resolver over the same TEI, ADR 0015); embedded IIIF viewer; desktop three columns, phone default interleaved sentence pairs with reader-chosen English-only mode; lookups link to the WNT and Logeion; provenance badges per sentence; "cite this" in SBL style with URL, pinned URL and URN; ask-an-agent as a passage-bound tool that must cite passage IDs.
 
 ### 10.10 Community and partners
 - **Designed 2026-11-02.** See ADR 0013: no outreach until the thin slice is public; then NRI (Dmytro Bintsarovskyi), Bavinck Institute, Westminster faculty for reviewers, CCEL, Junius Institute. Bron is the open engine over their libraries and links back.

@@ -10,7 +10,7 @@ The thread through all of it: one chapter of Bavinck, both editions, end to end,
 - **Done when:** an empty but valid CapiTainS data repo passes CI, and the three terms checks are recorded (ADR 0012).
 
 ## M1 — GD¹ in TEI
-- **A:** convert the four Gutenberg transcriptions to TEI per ADR 0007: `§.¶` citation hierarchy in the `refsDecl`, `<pb n facs>` restored to the DBNL scans, DP's correction lists as `<choice><sic/><corr/></choice>`, DP normalizations documented in the header, languages tagged; CapiTainS-valid; DTS Level 0 build produces the four volumes.
+- **A:** convert the four Gutenberg transcriptions to TEI per ADR 0007: `§.¶` citation hierarchy in the `refsDecl`, `<pb n facs>` restored to the DBNL scans, DP's correction lists as `<choice><sic/><corr/></choice>`, DP normalizations documented in the header, languages tagged; CapiTainS-valid; the DTS resolver serves the four volumes (ADR 0015).
 - **A:** sample check of 20 pages against the DBNL scans; report residual error.
 - **Done when:** `urn:cts:bron:bavinck.gd.ed1:3.2` resolves through DTS to the right Dutch, with its page image anchor.
 
@@ -27,6 +27,7 @@ The thread through all of it: one chapter of Bavinck, both editions, end to end,
 - **Done when:** CER for the range is published and `urn:cts:bron:bavinck.gd.ed2:170` resolves with its scan.
 
 ## M4 — Translation pilot (ADR 0008 §2)
+- **A:** SRX sentence segmentation and sentence `xml:id`s for the slice, because the hybrid translation method consumes source sentence IDs (ADR 0006). Edition sentence alignment in M5 reuses them.
 - **A:** two translators, hybrid reconciliation, lexicon empty on pass one; propose TBX entries from observed pairs; re-run with injection; chrF/COMET against Bolt locally (R keeps the Bolt text on his machine; only scores leave it); automatic MQM.
 - **V:** human MQM on a fixed subset; approve or reject proposed lexicon entries.
 - **A:** judge calibration figure; gate threshold from the distribution.
@@ -39,7 +40,7 @@ The thread through all of it: one chapter of Bavinck, both editions, end to end,
 - **Done when:** the link file and its score are committed and the diff renders.
 
 ## M6 — Thin slice public
-- **A:** reader pages for the slice per ADR 0010: desktop three columns and diff mode, phone interleaved default, IIIF viewer embedded, lookups linked to WNT and Logeion, provenance badges, SBL "cite this" with URL, pinned URL and URN; DTS Level 0 and search index from the same build; deployed static on the VPS.
+- **A:** reader pages for the slice per ADR 0010: desktop three columns and diff mode, phone interleaved default, IIIF viewer embedded, lookups linked to WNT and Logeion, provenance badges, SBL "cite this" with URL, pinned URL and URN; search index from the same build and the DTS resolver deployed beside it (ADR 0015); deployed static on the VPS.
 - **R:** first release tag; Zenodo DOI; `REVIEWERS.md` with the first vetted reviewer and the promotion criteria (ADR 0009).
 - **Done when:** a stranger can open `/bavinck/gd/ed2/170`, see the Dutch, the English with its badge, the scan, the GD¹ counterpart in diff mode, and cite it with a permalink that pins to release 0.1.
 
