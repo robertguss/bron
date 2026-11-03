@@ -27,7 +27,7 @@ from referencing import Registry, Resource
 from uritemplate import URITemplate
 
 from bron.dts.app import create_app
-from bron.dts.index import Index, Unit, build_index
+from bron.dts.index import Index, Unit, split_passage_urn
 from bron.dts.index import Resource as Text
 from bron.dts.responses import DTS_NS
 from bron.tei import tei
@@ -65,10 +65,9 @@ def verify(
     schemas: Path | None = None,
 ) -> Report:
     """Check every answer the resolver gives for `repo`; raises DataError if it cannot start."""
-    index = build_index(repo)
-    client = TestClient(
-        create_app(repo, base_url=BASE), raise_server_exceptions=False, follow_redirects=False
-    )
+    app = create_app(repo, base_url=BASE)
+    index: Index = app.state.index
+    client = TestClient(app, raise_server_exceptions=False, follow_redirects=False)
     run = _Run(index, client, _validators(schemas) if schemas else {})
     run.entry()
     run.collections()
@@ -238,14 +237,14 @@ class _Run:
     def withdrawn(self) -> None:
         for urn, record in self.index.redirects.items():
             self.report.withdrawn += 1
-            resource, ref = urn.rsplit(":", 1)
+            resource, ref = split_passage_urn(urn)
             for endpoint in ("navigation", "document"):
                 url, response = self.get(endpoint, resource=resource, ref=ref)
                 for problem in _withdrawn_problems(endpoint, record, response):
                     self.fail(url, "dts-withdrawn", f"{urn}: {problem}")
 
     def expect(self, urn: str, prefix: str) -> None:
-        resource, ref = urn.rsplit(":", 1)
+        resource, ref = split_passage_urn(urn)
         url, response = self.get("document", resource=resource, ref=ref)
         if response.status_code != 200:
             self.fail(url, "dts-expect", f"{urn} answered {response.status_code}")
@@ -273,7 +272,7 @@ def _withdrawn_problems(endpoint: str, record: dict, response: Response) -> Iter
         yield f"answered {status}, expected {expected}"
         return
     if expected == 301:
-        resource, ref = record["replaced_by"][0].rsplit(":", 1)
+        resource, ref = split_passage_urn(record["replaced_by"][0])
         location = f"{BASE}/{endpoint}?{urlencode({'resource': resource, 'ref': ref}, safe=':')}"
         if response.headers.get("location") != location:
             yield f"redirects to {response.headers.get('location')}, expected {location}"

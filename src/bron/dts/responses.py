@@ -56,7 +56,7 @@ def _dublin_core(node: Collection) -> dict[str, Any]:
     return found
 
 
-def collection_member(index: Index, node: Collection, base: str) -> dict[str, Any]:
+def collection_member(node: Collection, base: str) -> dict[str, Any]:
     """A Collection or Resource object, as it appears in a `member` array."""
     resource = node.resource
     found: dict[str, Any] = {
@@ -90,14 +90,14 @@ def _resource_links(resource: Resource, base: str) -> dict[str, Any]:
 
 def collection(index: Index, node: Collection, base: str, nav: str) -> dict[str, Any]:
     found = {"@context": CONTEXT, "dtsVersion": DTS_VERSION}
-    found.update(collection_member(index, node, base))
+    found.update(collection_member(node, base))
     if nav == "parents":
         related = [node.parent] if node.parent else []
     elif node.resource is None:
         related = node.children
     else:
         return found
-    found["member"] = [collection_member(index, index.collections[urn], base) for urn in related]
+    found["member"] = [collection_member(index.collections[urn], base) for urn in related]
     return found
 
 
@@ -124,7 +124,7 @@ def navigation(
         "dtsVersion": DTS_VERSION,
         "@type": "Navigation",
         "@id": request_id,
-        "resource": collection_member(index, index.collections[resource.urn], base),
+        "resource": collection_member(index.collections[resource.urn], base),
     }
     for name, unit in anchors.items():
         found[name] = citable_unit(unit)
@@ -146,11 +146,9 @@ def tei_fragment(units: list[Unit]) -> bytes:
     wrapper = etree.SubElement(root, f"{{{DTS_NS}}}wrapper", nsmap={"dts": DTS_NS})
     wrapper.text = "\n"
     wrapper.tail = "\n"
-    first = units[0].element
-    if _opens_with(first) is not True:
-        governing = first.xpath("preceding::tei:pb[1]", namespaces={"tei": TEI_NS})
-        if governing:
-            wrapper.append(_anchor_copy(governing[0]))
+    first = units[0]
+    if _opens_with(first.element) is not True and first.page_break is not None:
+        wrapper.append(_anchor_copy(first.page_break))
     for unit in units:
         copy = deepcopy(unit.element)
         copy.tail = "\n"

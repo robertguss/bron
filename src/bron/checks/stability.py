@@ -276,10 +276,7 @@ def _text_changes(base: Snapshot, head: Snapshot, edits: list[dict[str, Any]]) -
 
 
 def new_records(head: Path, base: Path) -> dict[Path, list[dict[str, Any]]]:
-    """The redirect and edit entries in `head` that `base` does not have, per file.
-
-    Merging the pull request that adds them is their review, so they are listed for it.
-    """
+    """The redirect and edit entries in `head` that `base` does not have, per file."""
     found: dict[Path, list[dict[str, Any]]] = {}
     for relative, schema, key in (
         (REDIRECTS, "redirects.schema.json", "redirects"),

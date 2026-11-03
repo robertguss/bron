@@ -13,7 +13,7 @@ from lxml import etree
 from bron.checks.capitains import CTS, CTS_NS, VERSION_KINDS
 from bron.checks.stability import REDIRECTS
 from bron.datafiles import load_records
-from bron.tei import NSMAP, XML_LANG
+from bron.tei import NSMAP, XML_LANG, tei
 from bron.tei.passages import (
     PassageError,
     cite_structure_units,
@@ -25,6 +25,12 @@ from bron.tei.passages import (
 DEFAULT_TREE = "default"
 
 _PARSER = etree.XMLParser(resolve_entities=False, no_network=True, huge_tree=True)
+
+
+def split_passage_urn(urn: str) -> tuple[str, str]:
+    """A passage URN's text URN and its passage reference."""
+    resource, ref = urn.rsplit(":", 1)
+    return resource, ref
 
 
 class DataError(Exception):
@@ -42,6 +48,7 @@ class Unit:
     ordinal: int  # position in document order
     last: int  # ordinal of its last descendant, or its own when it has none
     element: etree._Element
+    page_break: etree._Element | None  # the last <pb> before the unit begins
 
 
 @dataclass
@@ -52,13 +59,16 @@ class Resource:
     cite_structure: list[dict[str, Any]]
     language: str | None
     by_ref: dict[str, Unit] = field(init=False)
+    _children: dict[str | None, list[Unit]] = field(init=False)
 
     def __post_init__(self) -> None:
         self.by_ref = {unit.ref: unit for unit in self.units}
+        self._children = {}
+        for unit in self.units:
+            self._children.setdefault(unit.parent, []).append(unit)
 
     def children(self, unit: Unit | None) -> list[Unit]:
-        parent = unit.ref if unit else None
-        return [u for u in self.units if u.parent == parent]
+        return self._children.get(unit.ref if unit else None, [])
 
     def subtree(self, unit: Unit, depth: int | None) -> list[Unit]:
         """`unit` and its descendants down to `depth` levels below it (all when None)."""
@@ -223,6 +233,15 @@ def _resource(path: Path, urn: str) -> Resource:
             lasts[ancestor] = ordinal
         open_ancestors.append(ordinal)
 
+    starts = {passage.element for passage in passages}
+    page_breaks: dict[etree._Element, etree._Element | None] = {}
+    last_page_break = None
+    for element in tree.iter(tei("pb"), *{e.tag for e in starts}):
+        if element in starts:
+            page_breaks[element] = last_page_break
+        if element.tag == tei("pb"):
+            last_page_break = element
+
     return Resource(
         urn=urn,
         path=path,
@@ -235,6 +254,7 @@ def _resource(path: Path, urn: str) -> Resource:
                 ordinal=ordinal,
                 last=lasts[ordinal],
                 element=passage.element,
+                page_break=page_breaks.get(passage.element),
             )
             for ordinal, (unit, passage) in enumerate(zip(units, passages, strict=True))
         ],

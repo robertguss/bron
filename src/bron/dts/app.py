@@ -14,7 +14,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import RedirectResponse
 
 from bron.dts import responses
-from bron.dts.index import DEFAULT_TREE, Index, Resource, Unit, build_index
+from bron.dts.index import DEFAULT_TREE, Index, Resource, Unit, build_index, split_passage_urn
 from bron.dts.responses import JsonLd, Problem
 
 Param = Annotated[str | None, Query()]
@@ -27,6 +27,7 @@ def create_app(repo: Path, *, base_url: str) -> FastAPI:
     base = base_url.rstrip("/")
     prefix = urlsplit(base).path
     app = FastAPI(openapi_url=None, docs_url=None, redoc_url=None)
+    app.state.index = index
 
     @app.exception_handler(RequestValidationError)
     async def invalid_parameter(request: Request, error: RequestValidationError) -> Response:
@@ -184,7 +185,7 @@ def _gone(
         )
 
     def replaced(target: str) -> str:
-        resource, ref = target.rsplit(":", 1)
+        resource, ref = split_passage_urn(target)
         params = dict(request.query_params)
         params.update({"resource": resource, name: ref})
         return f"{base}/{endpoint}?{urlencode(params, safe=':,')}"
