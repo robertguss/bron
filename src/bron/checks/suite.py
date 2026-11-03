@@ -3,9 +3,11 @@
 from pathlib import Path
 
 from bron.checks import Check, run_checks
+from bron.checks.alignment import check_alignment
 from bron.checks.bron_rules import check_bron_rules
 from bron.checks.capitains import check_capitains
 from bron.checks.citations import check_citations
+from bron.checks.registry import check_registry
 from bron.checks.schema import check_schema
 from bron.checks.stability import stability_check
 from bron.checks.tei_constraints import check_tei_constraints
@@ -17,6 +19,8 @@ ALL_CHECKS: list[Check] = [
     check_bron_rules,
     check_capitains,
     check_citations,
+    check_registry,
+    check_alignment,
 ]
 
 

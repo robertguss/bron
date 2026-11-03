@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertguss/bron/schemas/registry-terms.schema.json",
+  "title": "Bron rights registry: site terms of use",
+  "$comment": "A `description` on a subschema is the plain-words message bron check prints when that subschema fails.",
+  "type": "object",
+  "required": ["terms"],
+  "additionalProperties": false,
+  "properties": {
+    "terms": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/term" }
+    }
+  },
+  "$defs": {
+    "date": {
+      "description": "must be a calendar date written YYYY-MM-DD",
+      "type": "string",
+      "format": "date"
+    },
+    "term": {
+      "type": "object",
+      "required": ["site", "terms_url", "checked_on", "summary", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "site": { "type": "string", "minLength": 1 },
+        "terms_url": {
+          "description": "must be an http or https URI",
+          "type": "string",
+          "pattern": "^https?://\\S+$"
+        },
+        "checked_on": { "$ref": "#/$defs/date" },
+        "summary": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["pending", "confirmed"] },
+        "confirmed_by": { "type": "string", "minLength": 1 },
+        "confirmed_on": { "$ref": "#/$defs/date" }
+      },
+      "if": {
+        "required": ["status"],
+        "properties": { "status": { "const": "confirmed" } }
+      },
+      "then": { "required": ["confirmed_by", "confirmed_on"] },
+      "else": {
+        "description": "a pending record must not carry confirmed_by or confirmed_on",
+        "not": {
+          "anyOf": [{ "required": ["confirmed_by"] }, { "required": ["confirmed_on"] }]
+        }
+      }
+    }
+  }
+}

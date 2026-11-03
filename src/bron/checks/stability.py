@@ -8,27 +8,20 @@ points to may not change substantially unless `identifiers/edits.yaml` declares 
 new text, so two passages trading labels cannot pass unnoticed.
 """
 
-import datetime
 import hashlib
-import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
-from functools import cache
 from pathlib import Path
 from typing import Any
 
-import jsonschema
-import yaml
-from jsonschema.protocols import Validator
-
 from bron.checks import Check, Context
+from bron.datafiles import load_yaml, schema_findings
 from bron.findings import Finding
 from bron.tei import NSMAP
 from bron.tei.passages import PassageError, cref_passages
 from bron.tei.text import normalized_text
 
-SCHEMAS = Path(__file__).parent.parent / "schemas"
 REDIRECTS = Path("identifiers/redirects.yaml")
 EDITS = Path("identifiers/edits.yaml")
 
@@ -102,59 +95,31 @@ def _snapshot(context: Context) -> Snapshot:
     return snapshot
 
 
-@cache
-def _validator(name: str) -> Validator:
-    schema = json.loads((SCHEMAS / f"{name}.schema.json").read_text(encoding="utf-8"))
-    return jsonschema.Draft202012Validator(
-        schema, format_checker=jsonschema.Draft202012Validator.FORMAT_CHECKER
-    )
-
-
-def _as_json(value: Any) -> Any:
-    """YAML dates load as `datetime.date`; JSON Schema validates them as ISO strings."""
-    if isinstance(value, dict):
-        return {key: _as_json(item) for key, item in value.items()}
-    if isinstance(value, list):
-        return [_as_json(item) for item in value]
-    if isinstance(value, datetime.date):
-        return value.isoformat()
-    return value
-
-
 def _load(
     root: Path, relative: Path, schema: str, key: str, check: str
 ) -> tuple[list[dict[str, Any]], list[Finding]]:
     path = root / relative
     if not path.is_file():
         return [], []
-    try:
-        document = _as_json(yaml.safe_load(path.read_text(encoding="utf-8")))
-    except yaml.YAMLError as error:
-        mark = getattr(error, "problem_mark", None)
-        line = mark.line + 1 if mark is not None else None
-        return [], [Finding(path, line, check, f"{relative} is not valid YAML: {error}")]
-    errors = sorted(_validator(schema).iter_errors(document), key=lambda e: list(e.path))
-    if errors:
-        return [], [
-            Finding(
-                path,
-                None,
-                check,
-                f"{relative}: {'/'.join(map(str, e.path)) or 'top level'}: {e.message}",
-            )
-            for e in errors
-        ]
-    return document[key], []
+    file = load_yaml(path, check)
+    if isinstance(file, Finding):
+        return [], [file]
+    problems = list(schema_findings(file, schema, check, "urn"))
+    if problems:
+        return [], problems
+    return file.data[key], []
 
 
 def _compare(head_context: Context, base_context: Context) -> Iterator[Finding]:
     root = head_context.root
-    redirects, problems = _load(root, REDIRECTS, "redirects", "redirects", "stability-redirects")
+    redirects, problems = _load(
+        root, REDIRECTS, "redirects.schema.json", "redirects", "stability-redirects"
+    )
     yield from problems
-    edits, problems = _load(root, EDITS, "edits", "edits", "stability-edits")
+    edits, problems = _load(root, EDITS, "edits.schema.json", "edits", "stability-edits")
     yield from problems
     base_redirects, _ = _load(
-        base_context.root, REDIRECTS, "redirects", "redirects", "stability-redirects"
+        base_context.root, REDIRECTS, "redirects.schema.json", "redirects", "stability-redirects"
     )
 
     head = _snapshot(head_context)
