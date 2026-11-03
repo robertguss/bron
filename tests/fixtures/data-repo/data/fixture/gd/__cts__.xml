@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:work xmlns:ti="http://chs.harvard.edu/xmlns/cts" groupUrn="urn:cts:bron:fixture" urn="urn:cts:bron:fixture.gd" xml:lang="nl">
+  <ti:title xml:lang="nl">Gereformeerde Dogmatiek</ti:title>
+  <ti:title xml:lang="en">Reformed Dogmatics</ti:title>
+  <ti:edition workUrn="urn:cts:bron:fixture.gd" urn="urn:cts:bron:fixture.gd.ed1">
+    <ti:label xml:lang="nl">Gereformeerde Dogmatiek, eerste druk (testexcerpt)</ti:label>
+    <ti:description xml:lang="en">A trimmed excerpt of the first edition, for tests.</ti:description>
+  </ti:edition>
+</ti:work>

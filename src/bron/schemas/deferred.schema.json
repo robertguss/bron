@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/robertguss/bron/schemas/deferred.schema.json",
+  "title": "Bron alignments: link targets whose files a later milestone adds",
+  "type": "object",
+  "required": ["deferred"],
+  "additionalProperties": false,
+  "properties": {
+    "deferred": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "milestone"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "milestone": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

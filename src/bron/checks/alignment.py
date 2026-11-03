@@ -1,0 +1,97 @@
+"""Alignment link targets resolve to an xml:id in an edition file, or to a deferred file."""
+
+from collections.abc import Iterator
+from pathlib import Path
+from urllib.parse import urljoin, urlsplit
+from urllib.request import url2pathname
+
+from lxml import etree
+
+from bron.checks import Context
+from bron.datafiles import load_records
+from bron.findings import Finding
+from bron.tei import XML_BASE, tei, xml_ids
+
+DEFERRED = Path("alignments/deferred.yaml")
+
+
+class _Skipped:
+    """Marks a target whose file a later milestone adds."""
+
+
+SKIPPED = _Skipped()
+
+
+def check_alignment(context: Context) -> Iterator[Finding]:
+    findings, skipped = alignment_report(context)
+    if skipped:
+        context.notices.append(
+            f"{skipped} alignment target{'s' if skipped != 1 else ''} skipped: "
+            f"their files are listed in {DEFERRED}"
+        )
+    yield from findings
+
+
+def alignment_report(context: Context) -> tuple[list[Finding], int]:
+    """The findings, and how many targets were skipped because their file is deferred."""
+    deferred, findings = _deferred(context)
+    ids: dict[Path, set[str] | None] = {}
+    skipped = 0
+    for path in context.alignment_files():
+        tree = context.tree(path)
+        if tree is None:
+            continue
+        document = path.resolve().as_uri()
+        for link in tree.iter(tei("link")):
+            base = _base(document, link)
+            for token in link.get("target", "").split():
+                problem = _resolve(context, urljoin(base, token), deferred, ids)
+                if problem is SKIPPED:
+                    skipped += 1
+                elif problem:
+                    message = f"link on line {link.sourceline}: target {token!r} {problem}"
+                    findings.append(Finding(path, link.sourceline, "alignment-target", message))
+    return findings, skipped
+
+
+def _resolve(
+    context: Context, uri: str, deferred: set[str], ids: dict[Path, set[str] | None]
+) -> str | _Skipped | None:
+    """What is wrong with one resolved target, SKIPPED when its file is deferred, else None."""
+    parts = urlsplit(uri)
+    if parts.scheme != "file":
+        return None
+    target = Path(url2pathname(parts.path))
+    root = context.root.resolve()
+    if not target.is_relative_to(root):
+        return f"resolves to {target}, which is outside the data repository"
+    relative = target.relative_to(root).as_posix()
+    if not target.is_file():
+        if relative in deferred:
+            return SKIPPED
+        return f"resolves to {relative}, which does not exist and is not listed in {DEFERRED}"
+    if target not in ids:
+        tree = context.tree(target)
+        ids[target] = xml_ids(tree) if tree is not None else None
+    known = ids[target]
+    if parts.fragment and known is not None and parts.fragment not in known:
+        return f"resolves to {relative}, which has no xml:id {parts.fragment!r}"
+    return None
+
+
+def _base(document: str, link: etree._Element) -> str:
+    """The link's base URI: every xml:base on its ancestors-or-self, applied outermost first."""
+    base = document
+    for element in [*reversed(list(link.iterancestors())), link]:
+        value = element.get(XML_BASE)
+        if value is not None:
+            base = urljoin(base, value)
+    return base
+
+
+def _deferred(context: Context) -> tuple[set[str], list[Finding]]:
+    """Repo-relative paths of target files a later milestone adds, from alignments/deferred.yaml."""
+    entries, findings = load_records(
+        context.root, DEFERRED, "deferred.schema.json", "deferred", "alignment-deferred", "path"
+    )
+    return {entry["path"] for entry in entries}, findings
