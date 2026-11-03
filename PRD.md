@@ -107,7 +107,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 ## 10. System components
 
 ### 10.1 Corpus and rights registry
-- Catalog of works, editions, scans, sources (NRI, Delpher, DBNL, archive.org, e-rara, PRDL), with rights status per work and per source.
+- **Designed 2026-11-02.** See ADR 0012: one record per work per source copy, rightsstatements.org vocabulary for sources, Creative Commons for outputs, terms checks recorded as registry entries, copyrighted translations listed as judge-only.
 - Check terms of use for each source (NRI sources site, Delpher, DBNL) before bulk use.
 
 ### 10.2 Transcription (scan → text)
@@ -147,8 +147,7 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Static-first pages from the TEI (same build emits DTS Level 0 and a static search index); embedded IIIF viewer; desktop three columns, phone default interleaved sentence pairs with reader-chosen English-only mode; lookups link to the WNT and Logeion; provenance badges per sentence; "cite this" in SBL style with URL, pinned URL and URN; ask-an-agent as a passage-bound tool that must cite passage IDs.
 
 ### 10.10 Community and partners
-- NRI (Utrecht), Bavinck Institute (Calvin Seminary), Junius Institute / PRDL, CCEL as precedent and possible ally, Westminster faculty and students as contributors.
-- Talk to NRI and the Bavinck Institute early: the project is the open engine over their library, linking back.
+- **Designed 2026-11-02.** See ADR 0013: no outreach until the thin slice is public; then NRI (Dmytro Bintsarovskyi), Bavinck Institute, Westminster faculty for reviewers, CCEL, Junius Institute. Bron is the open engine over their libraries and links back.
 
 ## 11. First milestone — "The Bavinck Diff"
 
@@ -203,14 +202,14 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 Each is a session of its own; order is a proposal.
 
 1. ~~**Text model and citation scheme**~~ — done 2026-11-02; see `docs/text-model.md`. Open facts to verify are listed there.
-2. **Corpus and rights** — inventory of Bavinck sources via NRI bibliography; what's translated; source terms; rights registry design.
+2. ~~**Corpus and rights**~~ — registry designed 2026-11-02 (ADR 0012); the inventory itself and the three terms checks are work items.
 3. ~~**Transcription**~~ — done 2026-11-02 for Bavinck; see `docs/transcription.md` and ADR 0007. Early-modern print remains open for the scholastics phase.
 4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
 5. ~~**Translation and lexicon**~~ — done 2026-11-02; see `docs/translation.md` and ADR 0008.
 6. ~~**Provenance and review**~~ — done 2026-11-02; see `docs/provenance.md` and ADR 0009.
 7. ~~**Reader**~~ — done 2026-11-02; see ADR 0010.
-8. **Partners and community** — outreach to NRI, Bavinck Institute, Junius; contribution model; governance.
-9. **Infrastructure** — hosting (personal VPS), pipeline runtime, cost of inference at corpus scale.
+8. ~~**Partners and community**~~ — done 2026-11-02 (ADR 0013): outreach after the thin slice; contribution model in ADR 0009.
+9. ~~**Infrastructure**~~ — done 2026-11-02 (ADR 0011).
 10. ~~**Name**~~ — decided 2026-11-02: **Bron**. The first milestone is "the Bavinck Diff" underneath it.
 
 ## 16. Glossary (seed)
