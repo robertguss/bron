@@ -124,13 +124,13 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 - Stand-off TEI link files; levels structure → unit → sentence; SRX segmentation; edition diff scored against a human gold sample; translation aligned by construction (hybrid: paragraph translation with mandatory sentence-ID reconciliation).
 
 ### 10.5 Translation layer
-- Agentic translation using a **controlled lexicon** of technical terms where each rendering is an explicit, documented, corpus-wide decision.
-- Calibration before trust: translate works that already have trusted translations (public-domain ones openly; copyrighted ones privately as a judge), measure drift, feed drift back into the lexicon and prompts.
-- Reviewer corrections become examples for future runs.
+- **Designed 2026-11-02.** See `docs/translation.md` and ADR 0008.
+- Hybrid paragraph translation with sentence-ID reconciliation; two models in the pilot; literal-leaning contemporary register; quotations translated as their own units.
+- Quality: MQM is the judge; chrF/COMET as cheap signals against Bolt (private); the automatic judge is calibrated against human MQM on GD² before use elsewhere; drafts go public only above a measured threshold, always labeled and scored.
 
 ### 10.6 Lexicon
-- Machine-readable controlled vocabulary for scholastic and neo-Calvinist terms (Latin, Dutch) with chosen English renderings, alternatives considered, rationale, and references.
-- Public-domain lexica as inputs: Lewis & Short, Du Cange; modern ones (e.g., Muller's *Dictionary*) consulted, never copied.
+- **Designed 2026-11-02.** TBX termbase; preferred renderings default to established usage (Bolt, Muller, the Standards' English) with documented departures; entries carry `proposed`/`approved` states; approved entries are injected into translation and enforced by terminology QA.
+- Public-domain lexica as inputs: Lewis & Short, Du Cange; modern ones consulted, never copied.
 
 ### 10.7 Linking
 - Scripture references resolved to canonical references (link out).
@@ -206,7 +206,7 @@ Each is a session of its own; order is a proposal.
 2. **Corpus and rights** — inventory of Bavinck sources via NRI bibliography; what's translated; source terms; rights registry design.
 3. ~~**Transcription**~~ — done 2026-11-02 for Bavinck; see `docs/transcription.md` and ADR 0007. Early-modern print remains open for the scholastics phase.
 4. ~~**Alignment**~~ — done 2026-11-02; see `docs/alignment.md` and ADR 0006.
-5. **Translation and lexicon** — model, prompts, lexicon format, calibration protocol, drift metrics.
+5. ~~**Translation and lexicon**~~ — done 2026-11-02; see `docs/translation.md` and ADR 0008.
 6. **Provenance and review** — state model, reviewer UI, how corrections feed back.
 7. **Reader** — parallel view, lemma/gloss, diff view, agent-ask, static publishing.
 8. **Partners and community** — outreach to NRI, Bavinck Institute, Junius; contribution model; governance.
