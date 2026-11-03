@@ -23,8 +23,8 @@ Declared per edition in the TEI `refsDecl`. Known so far:
 
 | Work | Edition / version | Primary hierarchy | Secondary index | Notes |
 |---|---|---|---|---|
-| Bavinck, *Gereformeerde Dogmatiek* | `ed2` (1906–11) | § | volume:page | § numbering believed continuous across volumes — verify |
-| Bavinck, *Gereformeerde Dogmatiek* | `ed1` (1895–1901) | **unknown** | volume:page | verify whether usable § numbering exists; if not, volume:page is primary |
+| Bavinck, *Gereformeerde Dogmatiek* | `ed2` (1906–11) | subparagraph `#` 1–580, continuous across volumes (incl. `427a`/`427b`) | Par. 1–62 (13 used twice); volume:page | the Baker English keeps the `#` numbers in brackets, so `GD² #317` resolves on a scholar's shelf too |
+| Bavinck, *Gereformeerde Dogmatiek* | `ed1` (1895–1901) | `§.¶` — § 1–56 continuous across volumes, subparagraphs restart at 1 within each § | volume:page | different scheme from `ed2` at both levels; the Diff needs an explicit alignment table |
 | Calvin, *Institutio* (1559) | via *Calvini Opera* | book.chapter.section | CO volume:column | universal convention |
 | *Calvini Opera* (other works) | CR edition | volume:column | — | page/column is the convention |
 | Augustine | existing OGL editions | book.chapter.paragraph | PL column | reuse existing `latinLit` URNs |
@@ -77,13 +77,17 @@ Views (parallel, translation, diff) are presentation and are decided in the read
 - Provenance states (for the provenance session): XLIFF 2 segment-state vocabulary (initial → translated → reviewed → final) rather than an invented one.
 - Resolution: DTS. Encoding: TEI P5 + CapiTainS.
 
-## 10. Facts to verify before locking Bavinck
+## 10. Facts verified (2026-11-02)
 
-1. Does GD 1st edition carry usable § numbering? If not: volume:page primary.
-2. Does GD 2nd edition § numbering run continuously across all four volumes, and does it match the bracketed numbers in the English edition?
-3. Does Delpher (or whichever library holds the GD scans) serve IIIF for them?
-4. Which Augustine works already have Open Greek and Latin / `latinLit` URNs, and which editions those URNs point to.
-5. Current state of the DTS specification and reference implementations (the spec has had several drafts).
+Full findings with sources: `research/2026-11-02-fact-checks.md`.
+
+1. **GD¹ numbering:** yes — § 1–56 continuous across volumes, subparagraphs restarting within each §. Cite as `§.¶`. All four volumes exist as proofread Gutenberg transcriptions (#51052, #67966, #68527, #69005).
+2. **GD² numbering:** yes — subparagraphs 1–580 continuous (with `427a`/`427b`), Par. 1–62 (13 twice); the Baker English retains the `#` numbers. Cite as `#`.
+3. **Delpher IIIF:** not public as far as can be found (KB joined the IIIF Consortium Feb 2025, intends to publish). Bron hosts its own IIIF for the scans it uses; revisit later.
+4. **Augustine URNs:** textgroup `urn:cts:latinLit:stoa0040`; work URNs exist for most works; edition coverage uneven. Reuse work URNs, add `bron-lat1` editions where none exist.
+5. **DTS:** 1.0 published 13 Feb 2026; Level 0 static-site conformance exists. Bron targets DTS 1.0 Level 0 from static files.
+
+Scheme constraint learned: passage identifiers may be non-integer (`427a`); the `refsDecl` and URL patterns must allow it.
 
 ## 11. Out of scope here
 

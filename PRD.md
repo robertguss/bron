@@ -76,7 +76,8 @@ Reading this way, an English reader absorbs the Dutch or Latin by osmosis — Lo
 
 ### Phase 1 — Bavinck (start here)
 - **Why first:** died 1921 (public domain everywhere); modern roman type (OCR nearly solved); Dutch MT is strong; NRI has the bibliography (800+ sources) and PDFs; the periphery is largely untranslated.
-- **Gereformeerde Dogmatiek, both editions:** 1st ed. 1895–1901; 2nd ed. 1906–1911 (heavily revised, especially vol. 1). The English (Bolt/Vriend) translates the 4th printing, which reproduces the 2nd. The 1st edition has never been in English.
+- **Gereformeerde Dogmatiek, both editions:** 1st ed. 1895–1901; 2nd ed. 1906–1911 (revised throughout; Gootjes: "differs in all sorts of ways from the first, but there are only a few changes in contents"). The English (Bolt/Vriend) translates the 4th printing, which reproduces the 2nd. The 1st edition has never been in English by a human translator; Monergism published an unverified AI auto-translation in 2026 (see `docs/research/2026-11-02-fact-checks.md`), which sharpens rather than weakens the case for the engine.
+- **Open transcriptions:** all four 1st-edition volumes are proofread on Project Gutenberg; no open transcription of the 2nd/4th edition exists, so that is real transcription work.
 - **Periphery:** articles (*De Bazuin* and other periodicals), lectures and orations, reviews, pedagogical and psychological writings, letters.
 - **Marginalia and archive:** Bavinck's archive via NRI; handwritten material is a later phase (needs HTR).
 
