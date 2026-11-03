@@ -1,0 +1,38 @@
+[project]
+name = "bron"
+version = "0.1.0"
+description = "Validation, DTS resolution and ingest tools for Bron's data repository"
+readme = "README.md"
+license = "Apache-2.0"
+authors = [{ name = "Robert Guss" }]
+requires-python = ">=3.15"
+dependencies = []
+
+[project.scripts]
+bron = "bron.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2",
+    "ruff>=0.17.3",
+    # ty is pre-1.0 and its rules change between releases: bump deliberately.
+    "ty==0.0.96",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py315"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ty.environment]
+python-version = "3.15"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-ra", "--strict-markers"]
