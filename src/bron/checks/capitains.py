@@ -106,6 +106,15 @@ def _work(context: Context, folder: Path, textgroup_urn: str) -> Iterator[Findin
                     f"{kind} {version_urn!r} must have workUrn {urn!r}",
                 )
             suffix = version_urn.removeprefix(f"{urn}.")
+            if len(version_urn.split(":")) != 4:
+                yield Finding(
+                    metadata,
+                    version.sourceline,
+                    "cts-edition",
+                    f"{kind} urn {version_urn!r} must be "
+                    "urn:cts:<namespace>:<textgroup>.<work>.<version>",
+                )
+                continue
             if suffix == version_urn or not suffix or "." in suffix:
                 yield Finding(
                     metadata,
@@ -128,7 +137,7 @@ def _work(context: Context, folder: Path, textgroup_urn: str) -> Iterator[Findin
                     "cts-edition",
                     f"{kind} {version_urn} needs xml:lang",
                 )
-            text_path = folder / (version_urn.split(":", 3)[3] + ".xml")
+            text_path = folder / (version_urn.split(":")[3] + ".xml")
             listed.add(text_path)
             if not text_path.is_file():
                 yield Finding(

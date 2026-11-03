@@ -23,7 +23,13 @@ SKIPPED = _Skipped()
 
 
 def check_alignment(context: Context) -> Iterator[Finding]:
-    yield from alignment_report(context)[0]
+    findings, skipped = alignment_report(context)
+    if skipped:
+        context.notices.append(
+            f"{skipped} alignment target{'s' if skipped != 1 else ''} skipped: "
+            f"their files are listed in {DEFERRED}"
+        )
+    yield from findings
 
 
 def alignment_report(context: Context) -> tuple[list[Finding], int]:
@@ -58,7 +64,7 @@ def _resolve(
     target = Path(url2pathname(parts.path))
     root = context.root.resolve()
     if not target.is_relative_to(root):
-        return None
+        return f"resolves to {target}, which is outside the data repository"
     relative = target.relative_to(root).as_posix()
     if not target.is_file():
         if relative in deferred:

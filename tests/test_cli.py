@@ -61,3 +61,17 @@ def test_check_against_an_identical_base_passes(data_repo: Path, tmp_path: Path)
     base = tmp_path / "base"
     shutil.copytree(data_repo, base)
     assert main(["check", str(data_repo), "--base", str(base), "--require-base"]) == 0
+
+
+def test_check_against_a_base_reports_a_removed_citation(
+    data_repo: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    base = tmp_path / "base"
+    shutil.copytree(data_repo, base)
+    edition = data_repo / EDITION
+    text = edition.read_text(encoding="utf-8")
+    start = text.index('<div type="subparagraph" n="2">')
+    end = text.index("</div>", start) + len("</div>")
+    edition.write_text(text[:start] + text[end:], encoding="utf-8")
+    assert main(["check", str(data_repo), "--base", str(base), "--require-base"]) == 1
+    assert ": stability-removed: " in capsys.readouterr().out

@@ -5,7 +5,9 @@ branch, or the commit before a push). Every passage identifier on the base must 
 head or be recorded in `identifiers/redirects.yaml`, whose entries are append-only. A
 recorded identifier may never be cited again. And where an identifier survives, the text it
 points to may not change substantially unless `identifiers/edits.yaml` declares that exact
-new text, so two passages trading labels cannot pass unnoticed.
+new text, so two passages trading labels cannot pass unnoticed. A change is substantial
+when the word-level similarity of the old and new text falls below 0.6
+(`SUBSTANTIAL_CHANGE_BELOW`).
 """
 
 import hashlib
@@ -46,6 +48,7 @@ class Snapshot:
 
     passages: dict[str, Passage] = field(default_factory=dict)
     texts: dict[str, list[str]] = field(default_factory=dict)  # text URN -> passage URNs
+    unreadable: list[tuple[Path, str]] = field(default_factory=list)  # texts it could not read
 
 
 def stability_check(base: Path | None, *, require_base: bool) -> Check:
@@ -60,6 +63,15 @@ def stability_check(base: Path | None, *, require_base: bool) -> Check:
                     + (f" at {base}" if base is not None else ""),
                 )
             return
+        if not (base / "data").is_dir():
+            yield Finding(
+                context.root,
+                None,
+                "stability-base",
+                f"the base checkout at {base} has no data/ directory, so it cannot be the base "
+                "of this data repository",
+            )
+            return
         yield from _compare(context, Context(root=base.resolve()))
 
     return check_stability
@@ -70,14 +82,17 @@ def _snapshot(context: Context) -> Snapshot:
     for path in context.text_files():
         tree = context.tree(path)
         if tree is None:
+            snapshot.unreadable.append((path, "it is not well-formed XML"))
             continue
         body = tree.xpath("/tei:TEI/tei:text/tei:body", namespaces=NSMAP)
         text_urn = body[0].get("n") if body else None
         if not text_urn:
+            snapshot.unreadable.append((path, "its <body> names no text URN"))
             continue
         try:
             passages = context.cref_passages(path)
-        except PassageError:
+        except PassageError as error:
+            snapshot.unreadable.append((path, str(error)))
             continue
         parents = {p.parent for p in passages}
         urns = []
@@ -105,7 +120,7 @@ def _compare(head_context: Context, base_context: Context) -> Iterator[Finding]:
         root, EDITS, "edits.schema.json", "edits", "stability-edits", "urn"
     )
     yield from problems
-    base_redirects, _ = load_records(
+    base_redirects, base_problems = load_records(
         base_context.root,
         REDIRECTS,
         "redirects.schema.json",
@@ -113,10 +128,29 @@ def _compare(head_context: Context, base_context: Context) -> Iterator[Finding]:
         "stability-redirects",
         "urn",
     )
+    for problem in base_problems:
+        yield Finding(
+            root / REDIRECTS,
+            None,
+            "stability-base",
+            f"the base's {REDIRECTS} cannot be read, so its redirect history cannot be "
+            f"checked: {problem.message}",
+        )
 
     head = _snapshot(head_context)
     base = _snapshot(base_context)
     redirects_file = root / REDIRECTS
+    # Head texts that cannot be read are reported by the parse and citation checks. A base
+    # text that cannot be read would hide every removal from it, so it fails the check.
+    for path, reason in base.unreadable:
+        relative = path.relative_to(base_context.root)
+        yield Finding(
+            root / relative,
+            None,
+            "stability-base",
+            f"the base copy of {relative} cannot be read ({reason}), so its citations "
+            "cannot be checked",
+        )
 
     for entry in base_redirects:
         if entry not in redirects:

@@ -58,3 +58,13 @@ def test_textgroup_directory_without_metadata_fails(data_repo: Path) -> None:
 def test_text_without_cts_citation_declaration_fails(data_repo: Path, edit: Edit) -> None:
     edit(data_repo / EDITION, '<refsDecl n="CTS">', '<refsDecl n="other">')
     assert checks(data_repo) == ["cts-citation"]
+
+
+def test_version_urn_without_a_namespace_is_a_finding_not_a_crash(
+    data_repo: Path, edit: Edit
+) -> None:
+    for path in (data_repo / TEXTGROUP_CTS, data_repo / WORK_CTS):
+        path.write_text(
+            path.read_text(encoding="utf-8").replace("urn:cts:bron:", "urn:cts:"), encoding="utf-8"
+        )
+    assert "cts-edition" in checks(data_repo)

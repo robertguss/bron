@@ -28,3 +28,10 @@ Bron validates with lxml's RelaxNG, which needs no Java. Upgrading TEI means rep
 | every other rule | Not applicable: they govern ODD specification elements (`elementSpec`, `constraintSpec`, `schemaSpec` and the like), manuscript description, facsimile zones, verse (`l`, `lg`), critical apparatus, spans (`addSpan`, `delSpan`, `damageSpan`, `span`), `subst`, `relation`, and dating attributes (`@when`, `@from`, `@to`), none of which Bron's files use | — |
 
 Because of the deviation, Bron's files are described as valid against `tei_all` with one documented Schematron deviation, never as plain TEI-valid. A file that starts using one of the not-applicable elements needs its rule added here and in `tei_constraints.py`.
+
+## `redirects.schema.json` and `edits.schema.json`
+
+`identifiers/redirects.yaml` records every passage identifier that left a text: `redirected` (with `replaced_by`) or `retired`, with a reason and a date. Entries are append-only, and a recorded identifier may never be cited again.
+
+`identifiers/edits.yaml` declares a substantial change to the text an unchanged identifier points to. A change is substantial when the word-level similarity of the old and new text falls below **0.6**. On GD¹ vol. 1, §§ 1–5, a one-word change scored at least 0.994, and the 64 pairs of neighbouring subparagraphs (what a label swap compares) scored at most 0.113. Each entry carries the SHA-256 of the new normalized text, so it covers exactly one change; `bron check` prints that hash in its finding. Quote it in YAML, since an all-digit hash otherwise loads as a number.
+

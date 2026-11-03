@@ -20,6 +20,7 @@ class Context:
     _trees: dict[Path, etree._ElementTree | None] = field(default_factory=dict)
     parse_errors: dict[Path, Finding] = field(default_factory=dict)
     _crefs: dict[Path, list[CrefPassage] | PassageError] = field(default_factory=dict)
+    notices: list[str] = field(default_factory=list)  # facts worth printing that are not findings
 
     def tree(self, path: Path) -> etree._ElementTree | None:
         """The parsed file, or None when it is not well-formed (the schema check reports it)."""
@@ -65,7 +66,10 @@ Check = Callable[[Context], Iterable[Finding]]
 
 
 def run_checks(root: Path, checks: Iterable[Check]) -> list[Finding]:
-    context = Context(root=root.resolve())
+    return run_in(Context(root=root.resolve()), checks)
+
+
+def run_in(context: Context, checks: Iterable[Check]) -> list[Finding]:
     findings: list[Finding] = []
     for check in checks:
         findings.extend(check(context))

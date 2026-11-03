@@ -23,7 +23,9 @@ def _check(data_repo: Path, base: Path | None, require_base: bool) -> int:
         return 2
     if base is None and not require_base:
         print("bron check: no --base given, so identifier stability was skipped", file=sys.stderr)
-    findings = check_repository(data_repo, base, require_base=require_base)
+    findings, notices = check_repository(data_repo, base, require_base=require_base)
+    for notice in notices:
+        print(f"bron check: {notice}", file=sys.stderr)
     root = data_repo.resolve()
     for finding in findings:
         print(finding.render(root))

@@ -35,12 +35,28 @@ class CrefPassage:
     element: etree._Element
 
 
+# Saxon evaluates a text's citeStructure @match and @use as full XPath 3.1, whose
+# unparsed-text() and doc() can read files and fetch URLs. Data comes from untrusted pull
+# requests, so a text may carry no DTD (no entities to expand) and, once Saxon has parsed
+# it, may reach no URI at all.
+_SAFE_PARSER = etree.XMLParser(resolve_entities=False, no_network=True, load_dtd=False)
+_ALLOWED_PROTOCOLS = "http://saxon.sf.net/feature/allowedProtocols"
+
+
 def open_document(path: Path) -> Document:
     """The text as `dapytains` reads it; open it once and reuse it for every passage."""
     try:
-        return Document(str(path))
+        docinfo = etree.parse(str(path), _SAFE_PARSER).docinfo
+    except etree.XMLSyntaxError as error:
+        raise PassageError(f"the text is not well-formed: {error}") from error
+    if docinfo.doctype or docinfo.internalDTD is not None:
+        raise PassageError("a text may not carry a DOCTYPE declaration")
+    try:
+        document = Document(str(path))
     except Exception as error:  # dapytains raises bare exceptions on bad declarations
         raise PassageError(f"citeStructure cannot be read: {error}") from error
+    document.xml_processor.set_configuration_property(_ALLOWED_PROTOCOLS, "")
+    return document
 
 
 def _document(source: Path | Document) -> Document:

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from bron.checks import Context, run_checks
 from bron.checks.alignment import alignment_report, check_alignment
+from bron.checks.suite import check_repository
 from bron.findings import Finding
 
 ALIGNMENT = Path("alignments/fixture.gd.ed1--ed2.structure.xml")
@@ -103,3 +104,29 @@ def test_malformed_deferred_list_fails(data_repo: Path) -> None:
     path = write_deferred(data_repo, "deferred:\n  - path: data/fixture/gd/fixture.gd.ed2.xml\n")
     [finding] = findings(data_repo)
     assert (finding.path, finding.check) == (path, "alignment-deferred")
+
+
+def test_target_resolving_outside_the_repository_fails(data_repo: Path) -> None:
+    write_alignment(
+        data_repo, ["fixture.gd.ed1.xml#sec-3 fixture.gd.ed1.xml#nope"], "../../data/fixture/gd/"
+    )
+    assert {f.check for f in findings(data_repo)} == {"alignment-target"}
+
+
+def test_absolute_file_target_outside_the_repository_fails(data_repo: Path) -> None:
+    write_alignment(data_repo, ["file:///etc/nothing.xml#x file:///etc/other.xml#y"], None)
+    assert {f.check for f in findings(data_repo)} == {"alignment-target"}
+
+
+def test_deferred_targets_are_reported_as_a_notice(data_repo: Path) -> None:
+    write_alignment(
+        data_repo, ["fixture.gd.ed1.xml#sec-3 fixture.gd.ed2.xml#par-3"], "../data/fixture/gd/"
+    )
+    write_deferred(
+        data_repo, "deferred:\n  - path: data/fixture/gd/fixture.gd.ed2.xml\n    milestone: M3\n"
+    )
+    findings, notices = check_repository(data_repo)
+    assert [f for f in findings if f.check.startswith("alignment")] == []
+    assert notices == [
+        "1 alignment target skipped: their files are listed in alignments/deferred.yaml"
+    ]

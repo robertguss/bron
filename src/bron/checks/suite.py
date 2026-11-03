@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from bron.checks import Check, run_checks
+from bron.checks import Check, Context, run_in
 from bron.checks.alignment import check_alignment
 from bron.checks.bron_rules import check_bron_rules
 from bron.checks.capitains import check_capitains
@@ -26,6 +26,11 @@ ALL_CHECKS: list[Check] = [
 
 def check_repository(
     root: Path, base: Path | None = None, *, require_base: bool = False
-) -> list[Finding]:
-    """Run every check; identifier stability also compares against `base` when given."""
-    return run_checks(root, [*ALL_CHECKS, stability_check(base, require_base=require_base)])
+) -> tuple[list[Finding], list[str]]:
+    """Run every check; identifier stability also compares against `base` when given.
+
+    Returns the findings and the notices: facts worth printing that are not failures.
+    """
+    context = Context(root=root.resolve())
+    findings = run_in(context, [*ALL_CHECKS, stability_check(base, require_base=require_base)])
+    return findings, context.notices

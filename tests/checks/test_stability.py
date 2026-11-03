@@ -276,3 +276,30 @@ def test_no_base_without_require_base_is_skipped(head: Path) -> None:
 def test_malformed_redirects_file_fails(head: Path, base: Path) -> None:
     write(head, "identifiers/redirects.yaml", "redirects:\n  - urn: 3\n")
     assert set(checks(head, base)) == {"stability-redirects"}
+
+
+def test_unreadable_base_redirects_fail_closed(head: Path, base: Path) -> None:
+    remove_subparagraph(base, "3", "2")
+    write(base, "identifiers/redirects.yaml", RETIRED_3_2 + "    note: not a schema field\n")
+    # head deletes the retirement record and cites 3.2 again
+    assert "stability-base" in checks(head, base)
+
+
+def test_base_text_that_cannot_be_enumerated_fails_closed(
+    head: Path, base: Path, edit: Edit
+) -> None:
+    # the section-level pattern loses its closing parenthesis, so it no longer parses
+    edit(base / EDITION, "[@n='$1'])\"", "[@n='$1']\"")
+    remove_subparagraph(head, "3", "2")
+    assert "stability-base" in checks(head, base)
+
+
+def test_base_without_a_data_directory_fails_closed(head: Path, tmp_path: Path) -> None:
+    empty = tmp_path / "not-a-data-repo"
+    empty.mkdir()
+    assert [check for check, _ in findings(head, empty)] == ["stability-base"]
+
+
+def test_malformed_edits_file_fails(head: Path, base: Path) -> None:
+    write(head, "identifiers/edits.yaml", "edits:\n  - urn: 3\n")
+    assert set(checks(head, base)) == {"stability-edits"}

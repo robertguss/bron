@@ -76,3 +76,29 @@ def test_label_with_a_forbidden_character_fails(data_repo: Path, edit: Edit) -> 
         data_repo / EDITION, '<div type="subparagraph" n="11">', '<div type="subparagraph" n="1 1">'
     )
     assert "passage-label" in {check for check, _ in findings(data_repo)}
+
+
+def test_cite_structure_cannot_read_files_from_the_runner(
+    data_repo: Path, tmp_path: Path, edit: Edit
+) -> None:
+    secret = tmp_path / "secret.txt"
+    secret.write_text("TOPSECRET-CANARY", encoding="utf-8")
+    edit(
+        data_repo / EDITION,
+        'use="@n" delim="."/>',
+        f'use="concat(@n, unparsed-text(\'{secret.as_uri()}\'))" delim="."/>',
+    )
+    found = findings(data_repo)
+    assert found
+    assert all("TOPSECRET-CANARY" not in message for _, message in found)
+
+
+def test_text_with_a_doctype_is_refused(data_repo: Path, edit: Edit) -> None:
+    edit(
+        data_repo / EDITION,
+        '<?xml version="1.0" encoding="UTF-8"?>\n',
+        '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE TEI [<!ENTITY x "y">]>\n',
+    )
+    [(check, message)] = findings(data_repo)
+    assert check == "citation-cite-structure"
+    assert "DOCTYPE" in message
