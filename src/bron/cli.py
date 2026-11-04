@@ -185,6 +185,93 @@ def _verify(data_repo: Path, expect: list[str], schemas: Path | None) -> int:
     return 1 if report.failures else 0
 
 
+def _ocr_missing(command: str, error: ModuleNotFoundError) -> int:
+    print(
+        f"bron ocr {command}: needs {error.name}, from bron's ocr extra "
+        "(uv sync installs it; pip install 'bron[ocr]' otherwise)",
+        file=sys.stderr,
+    )
+    return 2
+
+
+def _ocr(args: argparse.Namespace) -> int:
+    from bron.ocr import OcrError
+
+    try:
+        return _ocr_command(args)
+    except ModuleNotFoundError as error:
+        return _ocr_missing(args.ocr_command, error)
+    except (OcrError, FileNotFoundError, KeyError) as error:
+        print(f"bron ocr {args.ocr_command}: {error}", file=sys.stderr)
+        return 1
+
+
+def _ocr_command(args: argparse.Namespace) -> int:
+    from bron.ocr import pipeline, sources
+    from bron.ocr.download import Downloader
+    from bron.ocr.manifest import Manifest
+
+    command = args.ocr_command
+    downloader = Downloader(args.cache, sources.SPACING)
+    if command == "packet":
+        from bron.ocr.packets import round1
+
+        written = round1(Manifest.load(args.manifest), args.cache, args.rules, args.out)
+        print(f"bron ocr packet: wrote {len(written)} files to {args.out}", file=sys.stderr)
+        return 0
+    if command == "verify":
+        manifest = Manifest.load(args.manifest)
+        problems = manifest.verify_sources(args.cache)
+        if args.committed is not None:
+            problems += manifest.verify_committed(args.committed)
+        for problem in problems:
+            print(problem)
+        print(f"bron ocr verify: {len(problems)} problems", file=sys.stderr)
+        return 1 if problems else 0
+    registry = sources.load_registry(args.registry)
+    if command == "sources":
+        pipeline.fetch_sources(registry, downloader)
+        print("bron ocr sources: every source is cached and verified", file=sys.stderr)
+        return 0
+    volumes = {n: pipeline.read_volume(registry, downloader, n) for n in sources.VOLUMES}
+    if command == "sample":
+        from bron.ocr.sample import NeedJudgments
+
+        judgments, rows = pipeline.load_judgments(args.screening)
+        result = pipeline.draw(volumes, args.seed_commit, judgments)
+        if isinstance(result, NeedJudgments):
+            listed = ", ".join(f"vol. {v} p. {p}" for v, p in result.pages)
+            print(f"judge these pages for Greek and Hebrew, then rerun: {listed}")
+            if args.sheets is not None:
+                for sheet in pipeline.contact_sheets(volumes, result.pages, args.sheets):
+                    print(f"contact sheet: {sheet}")
+            return 3
+        manifest = Manifest()
+        pipeline.write_sample(manifest, volumes, args.seed_commit, result, rows)
+        manifest.write(args.out)
+        for page in manifest.data["pages"]:
+            print(f"sampled: {page['id']}")
+        print(f"bron ocr sample: wrote {args.out}", file=sys.stderr)
+        return 0
+    if command == "fetch":
+        manifest = Manifest.load(args.manifest)
+        pipeline.fetch_pages(manifest, volumes, downloader, args.cache)
+        manifest.write(args.manifest)
+        print(f"bron ocr fetch: updated {args.manifest}", file=sys.stderr)
+        return 0
+    if command == "spans":
+        manifest = Manifest.load(args.manifest)
+        problems = pipeline.locate_spans(
+            manifest, registry, downloader, args.cache, volumes, args.renders
+        )
+        manifest.write(args.manifest)
+        for problem in problems:
+            print(problem)
+        print(f"bron ocr spans: updated {args.manifest}", file=sys.stderr)
+        return 1 if problems else 0
+    raise AssertionError(f"unhandled ocr command {command!r}")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="bron",
@@ -263,6 +350,43 @@ def build_parser() -> argparse.ArgumentParser:
         "--map", type=Path, help="page map to rewrite (default: the one shipped with bron)"
     )
 
+    ocr = commands.add_parser("ocr", help="the GD² OCR sample test")
+    ocr_commands = ocr.add_subparsers(dest="ocr_command", required=True, metavar="step")
+
+    def ocr_step(name: str, help_: str, *, registry: bool = True) -> argparse.ArgumentParser:
+        step = ocr_commands.add_parser(name, help=help_)
+        if registry:
+            step.add_argument(
+                "--registry", type=Path, required=True, help="bron-data's registry/sources.yaml"
+            )
+        step.add_argument(
+            "--cache", type=Path, required=True, help="cache directory, outside any repository"
+        )
+        return step
+
+    ocr_step("sources", "fetch and verify both printings' sources into the cache")
+    draw = ocr_step("sample", "draw the seeded sample of second-printing pages")
+    draw.add_argument(
+        "--seed-commit", required=True, help="the bron-data commit whose SHA seeds the draw"
+    )
+    draw.add_argument("--screening", type=Path, help="YAML of Greek and Hebrew judgments")
+    draw.add_argument("--sheets", type=Path, help="directory for contact sheets to judge")
+    draw.add_argument("--out", type=Path, required=True, help="the manifest to write")
+    fetch = ocr_step("fetch", "fetch the sampled pages' scans and ALTO into the cache")
+    fetch.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
+    spans = ocr_step("spans", "find each sampled page's words in the fourth printing")
+    spans.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
+    spans.add_argument("--renders", type=Path, help="directory for scans to check spans on")
+    packet = ocr_step("packet", "write the reader's round-1 packet", registry=False)
+    packet.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
+    packet.add_argument("--rules", type=Path, required=True, help="the transcription rules")
+    packet.add_argument("--out", type=Path, required=True, help="an empty packet directory")
+    check = ocr_step("verify", "check the manifest's hashes", registry=False)
+    check.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
+    check.add_argument(
+        "--committed", type=Path, help="root the committed files are relative to, to check too"
+    )
+
     return parser
 
 
@@ -279,6 +403,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _page_map(args.registry, args.cache, args.map)
         case "convert":
             return _convert_gd1(args.registry, args.cache, args.bron_commit, args.out)
+        case "ocr":
+            return _ocr(args)
     raise AssertionError(f"unhandled command {args.command!r}")
 
 

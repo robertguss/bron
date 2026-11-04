@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/          http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+	<responseDate>2026-11-04T03:24:05.004Z</responseDate>
+	<request verb="GetRecord" metadataPrefix="didl">https://services.kb.nl/mdo/oai</request>
+	<GetRecord>
+		<record>
+			<header>
+				<identifier>BOEKEN:MMUBVU05:MMUBVU05:000000817</identifier>
+				<datestamp>2019-07-10T09:42:49.083Z</datestamp>
+				<setSpec>BOEKEN:MMUBVU05</setSpec>
+			</header>
+			<metadata>
+<didl:DIDL xmlns:didl="urn:mpeg:mpeg21:2002:02-DIDL-NS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:srw_dc="info:srw/schema/1/dc-v1.1" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcx="http://krait.kb.nl/coop/tel/handbook/telterms.html" xmlns:dc="http://purl.org/dc/elements/1.1/" xsi:schemaLocation="urn:mpeg:mpeg21:2002:02-DIDL-NS http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-21_schema_files/did/didl.xsd">
+				<didl:Item xsi:schemaLocation="http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2006/01/06/dc.xsd" dc:identifier="MMUBVU05:000000817">
+					<didl:Descriptor>
+						<didl:Statement mimeType="text/plain">MMUBVU05_000000817</didl:Statement>
+					</didl:Descriptor>
+					<didl:Descriptor>
+						<didl:Statement mimeType="text/plain">Gereformeerde dogmatiek</didl:Statement>
+					</didl:Descriptor>
+					<didl:Component dc:identifier="MMUBVU05:000000817:pdf">
+						<didl:Descriptor>
+							<didl:Statement mimeType="text/plain" dc:type="role">PDF</didl:Statement>
+						</didl:Descriptor>
+						<didl:Descriptor>
+							<didl:Statement mimeType="text/plain" dc:type="md5">C3A8343669A991DD6763E1C7BDBD7E9C</didl:Statement>
+						</didl:Descriptor>
+						<didl:Resource mimeType="application/pdf" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:pdf"/>
+					</didl:Component>
+					<didl:Item dc:identifier="MMUBVU05:000000817:00001">
+						<didl:Descriptor>
+							<didl:Statement mimeType="text/plain" dc:type="role">page 1</didl:Statement>
+						</didl:Descriptor>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00001">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">metadata</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml">
+								<srw_dc:dcx>
+								<dcx:sequentialPageNumber>1</dcx:sequentialPageNumber>
+								<dcx:OCRConfidencelevel>1</dcx:OCRConfidencelevel>
+								</srw_dc:dcx>
+							</didl:Resource>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00001:ocr">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">OCR</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">8B7B755AA1370D8402EE565D43831539</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00001:ocr"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00001:image">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">A002C48D45B77C3EF39DC3A67C93E5B1</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00001:image"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00001:alto">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">wordPositions</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">B73748D43B98953B842B5497638F1A74</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00001:alto"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00001:image/preservation">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image/preservation</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="MMUBVU05_000000817_00001_master.jp2"/>
+						</didl:Component>
+					</didl:Item>
+					<didl:Item dc:identifier="MMUBVU05:000000817:00002">
+						<didl:Descriptor>
+							<didl:Statement mimeType="text/plain" dc:type="role">page 2</didl:Statement>
+						</didl:Descriptor>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00002">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">metadata</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml">
+								<srw_dc:dcx>
+								<dcx:sequentialPageNumber>2</dcx:sequentialPageNumber>
+								<dcx:OCRConfidencelevel>1</dcx:OCRConfidencelevel>
+								</srw_dc:dcx>
+							</didl:Resource>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00002:ocr">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">OCR</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">8B7B755AA1370D8402EE565D43831539</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00002:ocr"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00002:image">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">95677A369006326F34662564AE56664A</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00002:image"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00002:alto">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">wordPositions</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">664B21A6A6336A8CD2F3BDB3B85D10AF</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00002:alto"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00002:image/preservation">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image/preservation</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="MMUBVU05_000000817_00002_master.jp2"/>
+						</didl:Component>
+					</didl:Item>
+					<didl:Item dc:identifier="MMUBVU05:000000817:00003">
+						<didl:Descriptor>
+							<didl:Statement mimeType="text/plain" dc:type="role">page 3</didl:Statement>
+						</didl:Descriptor>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00003">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">metadata</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml">
+								<srw_dc:dcx>
+								<dcx:sequentialPageNumber>3</dcx:sequentialPageNumber>
+								<dcx:OCRConfidencelevel>1</dcx:OCRConfidencelevel>
+								</srw_dc:dcx>
+							</didl:Resource>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00003:ocr">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">OCR</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">8B7B755AA1370D8402EE565D43831539</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00003:ocr"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00003:image">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">E05FC4EEB6BFEA6D6887DF97F378878F</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00003:image"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00003:alto">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">wordPositions</didl:Statement>
+							</didl:Descriptor>
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="md5">121F06B66B318939DC8EDB471F3899D8</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="text/xml" ref="http://resolver.kb.nl/resolve?urn=MMUBVU05:000000817:00003:alto"/>
+						</didl:Component>
+						<didl:Component dc:identifier="MMUBVU05:000000817:00003:image/preservation">
+							<didl:Descriptor>
+								<didl:Statement mimeType="text/plain" dc:type="role">image/preservation</didl:Statement>
+							</didl:Descriptor>
+							<didl:Resource mimeType="image/jp2" ref="MMUBVU05_000000817_00003_master.jp2"/>
+						</didl:Component>
+					</didl:Item>
+					</didl:Item>
+			</didl:DIDL>
+			</metadata>
+		</record>
+	</GetRecord>
+</OAI-PMH>

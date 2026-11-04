@@ -25,6 +25,14 @@ convert = [
     "lingua-language-detector==1.4.2",
     "pypdfium2==5.14.0",
 ]
+# The GD² OCR sample test: Delpher's JPEG 2000 scans, the theologienet PDFs, image work and
+# fuzzy text search. A data repository's CI never needs these either.
+ocr = [
+    "numpy>=2.3",
+    "pillow>=13.0.0",
+    "pypdfium2==5.14.0",
+    "rapidfuzz>=3.14.6",
+]
 
 [project.scripts]
 bron = "bron.cli:main"
@@ -35,7 +43,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
-    "bron[convert]",
+    "bron[convert,ocr]",
     "pytest>=9.2",
     "ruff>=0.17.3",
     # ty is pre-1.0 and its rules change between releases: bump deliberately.

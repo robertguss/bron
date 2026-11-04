@@ -7,12 +7,12 @@ from bron.cli import main
 from tests.conftest import EDITION
 
 
-def test_help_lists_the_four_subcommands(capsys: pytest.CaptureFixture[str]) -> None:
+def test_help_lists_the_subcommands(capsys: pytest.CaptureFixture[str]) -> None:
     with pytest.raises(SystemExit) as exit_info:
         main(["--help"])
     assert exit_info.value.code == 0
     out = capsys.readouterr().out
-    for command in ("check", "serve", "dts", "convert"):
+    for command in ("check", "serve", "dts", "convert", "ocr"):
         assert command in out
 
 
