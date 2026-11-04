@@ -43,7 +43,7 @@ None of the sampled pages has a footnote.
 - one Greek-heavy page;
 - one Hebrew-heavy page.
 
-Each forced page takes one of its volume's five places. "Heavy" means the top decile of the pages that contain the script, ranked by that script's character count with ties broken by (volume, page). 764 pages contain Greek, so the Greek decile is 77 pages, each with 98 or more Greek characters. 144 pages contain Hebrew, so the Hebrew decile is 15 pages, each with 44 or more Hebrew characters. The decile is taken over pages that contain the script rather than over all 2,204 pages because Hebrew appears on only 144 pages, so a decile of all pages would include pages with no Hebrew.
+Each forced page takes one of its volume's five places. "Heavy" means the top decile of the pages that contain the script: rank those pages by that script's character count, highest first, with ties broken by (volume, page), and take the first ⌈n/10⌉. 764 pages contain Greek, so the Greek decile is 77 pages, each with 98 or more Greek characters. 144 pages contain Hebrew, so the Hebrew decile is 15 pages, each with 44 or more Hebrew characters. The decile is taken over pages that contain the script rather than over all 2,204 pages because Hebrew appears on only 144 pages, so a decile of all pages would include pages with no Hebrew.
 
 **Seed and algorithm.** The seed is the TEI file's SHA-256 read as an integer, so nobody chose it. The draw was run once, with Python 3.15.2:
 
@@ -147,11 +147,13 @@ The second reading refuted 4 further hunks as misreadings in the first transcrip
 
 ### Encoding errors
 
-| Class | Errors | Per 1,000 |
-|---|---|---|
-| Page break | 0 | 0.00 |
-| Structure (paragraphs, headings, subparagraph numbers) | 0 | 0.00 |
-| Language tag | 1 span, 3 letters (vol. 1) | 0.06 |
+Characters per 1,000, with the number of errors in brackets. The character counts are those of the textual table.
+
+| Class | Vol. 1 | Vol. 2 | Vol. 3 | Vol. 4 | All 20 pages |
+|---|---|---|---|---|---|
+| Page break | 0.00 (0) | 0.00 (0) | 0.00 (0) | 0.00 (0) | 0.00 (0) |
+| Structure (paragraphs, headings, subparagraph numbers) | 0.00 (0) | 0.00 (0) | 0.00 (0) | 0.00 (0) | 0.00 (0) |
+| Language tag | 0.25 (1 span, 3 letters) | 0.00 (0) | 0.00 (0) | 0.00 (0) | 0.06 (1 span, 3 letters) |
 
 All 20 page links open the right PDF page. The OCR layer's first line gives the printed number on 18 pages. On vol. 1 p. 356 and vol. 3 p. 59 that line is garbled, and the transcribers read the numbers from the scan. Separately, all 2,270 `pb`s in the file were checked against the page map: each `facs` names the right volume's PDF and the page the map gives, and no page index lies outside its PDF.
 
