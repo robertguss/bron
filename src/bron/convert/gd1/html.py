@@ -9,9 +9,10 @@ removing them changes no character and no order.
 `Converter` maps the transcription's markup to TEI. Page markers become `pb`, footnote
 callouts become notes, and corrections become `choice` (see `pages`, `notes` and
 `corrections`). Italic, bold, superscript, small capitals and letterspacing become `hi`.
-The transcribers' language spans become `foreign`. Hyperlinks, abbreviation expansions,
-images and rules are dropped, keeping the text they carry. An element with no mapping
-stops the conversion, so no text is lost unnoticed.
+The transcribers' language spans become `foreign` with their language code, and no `resp`,
+which marks a tag as theirs (see `langs` for the tags Bron adds). Hyperlinks, abbreviation
+expansions, images and rules are dropped, keeping the text they carry. An element with no
+mapping stops the conversion, so no text is lost unnoticed.
 """
 
 import re
@@ -25,7 +26,7 @@ from bron.convert.gd1 import ConversionError
 from bron.convert.gd1.corrections import choice
 from bron.convert.gd1.notes import Footnotes
 from bron.convert.gd1.pages import PageBreaks
-from bron.tei import tei
+from bron.tei import XML_LANG, tei
 
 BIDI_MARKS = str.maketrans("", "", "\u200e\u200f")
 SANS_SERIF = frozenset({"sansrf", "ssrf"})
@@ -217,8 +218,9 @@ class Converter:
             etree.SubElement(target, tei("lb"))
             _append(target, " ")
             return
-        if source.get("lang"):
+        if language := source.get("lang"):
             target = etree.SubElement(target, tei("foreign"))
+            target.set(XML_LANG, language)
         if tag in HI_TAGS:
             rend = HI_TAGS[tag]
         elif tag == "span":

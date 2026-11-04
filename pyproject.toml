@@ -12,10 +12,18 @@ dependencies = [
     "httpx2>=2.16.0",
     "jsonschema>=4.26.0",
     "lxml>=6.1.3",
-    "pypdfium2==5.14.0",
     "pyyaml>=6.0.3",
     "uritemplate>=4.2.0",
     "uvicorn>=0.54.0",
+]
+
+[project.optional-dependencies]
+# Only the one-time GD¹ ingest needs these, so a data repository's CI, which installs
+# bron without them, does not. lingua 1.4.2 needs regex<2025, which has no Python 3.15
+# wheel and builds from source; its models ship in the wheel, so the version pins them.
+convert = [
+    "lingua-language-detector==1.4.2",
+    "pypdfium2==5.14.0",
 ]
 
 [project.scripts]
@@ -27,6 +35,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "bron[convert]",
     "pytest>=9.2",
     "ruff>=0.17.3",
     # ty is pre-1.0 and its rules change between releases: bump deliberately.

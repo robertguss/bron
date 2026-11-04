@@ -4,16 +4,19 @@ The header names each source copy with its content hash: the four transcriptions
 their durable copies, and the four DBNL scans the page breaks link to. It credits the
 transcribers each ebook names and keeps their own notes and correction lists as provenance.
 It declares `#bron-convert`, the converter at the given bron commit, and `#bron-langid`,
-for machine language tags. `editorialDecl` states every decision the conversion makes, so a
-reader can tell the print, the transcribers' work and Bron's encoding apart.
+for machine language tags. `editorialDecl` states every decision the conversion makes,
+including how the machine language tags were made, so a reader can tell the print, the
+transcribers' work and Bron's encoding apart.
 """
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from importlib.metadata import version
 from typing import Any
 
 from lxml import etree
 
+from bron.convert.gd1 import langs
 from bron.tei import XML_ID, XML_LANG, tei
 
 PUBLIC_DOMAIN_MARK = "https://creativecommons.org/publicdomain/mark/1.0/"
@@ -240,9 +243,34 @@ def _decisions(
         "abbreviations such as LXX, O. T. and N. T. (vols. 3-4); the duplicate link text vol. "
         "2 adds for handheld readers; and hyperlinks, including those from vols. 2-4 to the "
         "ebooks of the other volumes, whose text is kept.",
-        "Languages. The language markup the transcribers added (vols. 2-4) is kept as "
-        "foreign, for now without a language code.",
+        _languages(),
     ]
+
+
+def _languages() -> str:
+    names = ", ".join(language.name.title() for language in langs.LANGUAGES)
+    words = ", ".join(sorted(langs.DUTCH_WORDS))
+    also = "; ".join(f"{word} ({languages})" for word, languages in sorted(langs.ALSO.items()))
+    return (
+        "Languages. The tags come in three layers. The language spans the transcribers marked "
+        "(vols. 2-4) are kept as foreign with their code and no resp. Every run of Greek or "
+        "Hebrew script outside a span of its language is tagged as foreign with xml:lang grc "
+        "or hbo and resp #bron-langid, so every Greek and Hebrew character is inside a "
+        "language span. Latin, German and French outside any language span are tagged as "
+        "foreign with xml:lang la, de or fr and resp #bron-langid by statistical language "
+        f"identification with {langs.LIBRARY} {version(langs.LIBRARY)}, whose language "
+        "models ship in the package, so its version is the model version. The candidates "
+        "are clauses: the text between punctuation marks, quotation marks, parentheses, notes "
+        "and other language spans, and the text of each highlighted phrase. The identifier "
+        f"chooses among {names}. A clause is tagged when it is identified as Latin, German "
+        f"or French with a confidence above {langs.THRESHOLD}, has more than {langs.FLOOR} "
+        "letters, and has no word with the ĳ ligature and none of these common Dutch words: "
+        f"{words}. Of these, a few are also words of a tagged language and do not count "
+        f"against it: {also}. Neighbouring tagged clauses of one language, with only "
+        "punctuation or a page break between them, form one span. The machine tags favour "
+        "precision over recall: much Latin, German and French is left untagged, notably "
+        "short phrases and terms within Dutch clauses."
+    )
 
 
 def _listing(items: list[str]) -> str:

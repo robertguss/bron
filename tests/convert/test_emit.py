@@ -55,6 +55,13 @@ def test_the_bron_commit_is_recorded_as_the_converter_responsible() -> None:
     assert COMMIT in "".join(name.getparent().itertext())
 
 
+def test_the_header_records_how_the_machine_language_tags_were_made() -> None:
+    tei = etree.fromstring(emitted(1))
+    [languages] = xpath(tei, "//tei:editorialDecl/tei:p[starts-with(., 'Languages.')]")
+    for setting in ("lingua-language-detector 1.4.2", "above 0.8", "more than 20 letters"):
+        assert setting in languages.text
+
+
 def test_the_emitted_file_passes_bron_check(tmp_path: Path) -> None:
     repo = tmp_path / "data-repo"
     work = repo / "data" / "bavinck" / "gd"

@@ -1,10 +1,11 @@
 """The GD¹ TEI file: each volume converted, checked, assembled and written deterministically.
 
-`convert` fetches the four volumes, converts each, checks that every page of the page map
-appears exactly once and that the § and subparagraph numbers run without unexplained gaps,
-and assembles one TEI file. The output is a pure function of its inputs (the four
-transcriptions, the page map, the registry and the bron commit): attributes are written in
-a fixed order, indentation is fixed, and nothing records the time of the run.
+`convert` fetches the four volumes, converts each and tags its languages (see `langs`),
+checks that every page of the page map appears exactly once and that the § and subparagraph
+numbers run without unexplained gaps, and assembles one TEI file. The output is a pure
+function of its inputs (the four transcriptions, the page map, the registry and the bron
+commit): attributes are written in a fixed order, indentation is fixed, and nothing
+records the time of the run.
 """
 
 from collections.abc import Mapping, Sequence
@@ -20,6 +21,7 @@ from bron.convert.gd1 import ConversionError
 from bron.convert.gd1.fetch import Download, fetch, http_get
 from bron.convert.gd1.header import Provenance, header
 from bron.convert.gd1.html import Converter, parse
+from bron.convert.gd1.langs import Tags, tag
 from bron.convert.gd1.notes import Footnotes
 from bron.convert.gd1.pagemap import MAP, load_map
 from bron.convert.gd1.pages import PageBreaks, for_volume
@@ -86,6 +88,7 @@ class Volume:
     sections: list[Section]
     pages: PageBreaks
     corrections: int
+    languages: Tags
 
 
 @dataclass
@@ -108,6 +111,7 @@ def convert_volume(data: bytes, number: int, page_map: Mapping[str, Any]) -> Vol
     back = _division(number, matter(regions.back, converter)) if regions.back else None
     notes = [converter.block(block) for block in regions.notes if block.tag in ("p", "ul")]
     footnotes.check_placed()
+    languages = tag([front, *nodes] + ([back] if back is not None else []))
     if converter.corrections != source.corrections:
         raise ConversionError(
             f"vol. {number}: {source.corrections} corrections in the source, "
@@ -124,6 +128,7 @@ def convert_volume(data: bytes, number: int, page_map: Mapping[str, Any]) -> Vol
         sections,
         converter.pages,
         converter.corrections,
+        languages,
     )
 
 

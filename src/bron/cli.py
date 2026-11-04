@@ -7,7 +7,7 @@ printed one per line as `file:line: check-id: message` so CI logs stay greppable
 import argparse
 import re
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 
@@ -73,12 +73,23 @@ def _serve(data_repo: Path, host: str, port: int, base_url: str | None) -> int:
     return 0
 
 
+def _missing_extra(command: str, error: ModuleNotFoundError) -> int:
+    print(
+        f"bron {command}: needs {error.name}, from bron's convert extra "
+        "(uv sync installs it; pip install 'bron[convert]' otherwise)",
+        file=sys.stderr,
+    )
+    return 2
+
+
 def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
     from bron.convert.gd1.pagemap import MAP, HashMismatch, remeasure
 
     target = map_path or MAP
     try:
         result = remeasure(registry, cache, target)
+    except ModuleNotFoundError as error:
+        return _missing_extra("convert gd1-page-map", error)
     except (HashMismatch, FileNotFoundError, KeyError) as error:
         print(f"bron convert gd1-page-map: {error}", file=sys.stderr)
         return 1
@@ -98,8 +109,12 @@ def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
 
 def _convert_gd1(registry: Path, cache: Path, commit: str, out: Path) -> int:
     from bron.convert.gd1 import ConversionError
-    from bron.convert.gd1.emit import convert
     from bron.convert.gd1.fetch import FetchError
+
+    try:
+        from bron.convert.gd1.emit import convert
+    except ModuleNotFoundError as error:
+        return _missing_extra("convert gd1", error)
 
     try:
         result = convert(registry, cache, commit)
@@ -117,11 +132,21 @@ def _convert_gd1(registry: Path, cache: Path, commit: str, out: Path) -> int:
             f"breaks (inserted: {inserted}; numbered from their anchor: {relabelled or 'none'}), "
             f"{volume.corrections} corrections"
         )
+        tags = volume.languages
+        print(
+            f"vol. {volume.number}: language tags kept from the transcribers: "
+            f"{_counts(tags.carried)}; added by script: {_counts(tags.script)}; "
+            f"added by identification: {_counts(tags.statistical)}"
+        )
     for number, section, missing in result.gaps:
         print(f"numbering gap allowed by the page map: vol. {number}, § {section}, no {missing}")
     sections = sum(len(volume.sections) for volume in result.volumes)
     print(f"bron convert gd1: wrote {out} with {sections} sections", file=sys.stderr)
     return 0
+
+
+def _counts(counts: Mapping[str, int]) -> str:
+    return ", ".join(f"{code} {n}" for code, n in sorted(counts.items())) or "none"
 
 
 def _expectation(raw: str) -> tuple[str, str]:
