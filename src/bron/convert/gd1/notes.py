@@ -6,14 +6,10 @@ paragraph that calls it. Each footnote becomes `<note place="bottom">` at its ca
 itself is dropped from the text, so the note's words appear exactly once.
 """
 
-from collections.abc import Callable
-
 from lxml import etree
 
-from bron.convert.gd1 import ConversionError
+from bron.convert.gd1 import ConversionError, Fill
 from bron.tei import tei
-
-Fill = Callable[[etree._Element, etree._Element], None]
 
 
 class Footnotes:

@@ -83,6 +83,7 @@ def _missing_extra(command: str, error: ModuleNotFoundError) -> int:
 
 
 def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
+    from bron.convert.gd1 import ConversionError
     from bron.convert.gd1.pagemap import MAP, HashMismatch, remeasure
 
     target = map_path or MAP
@@ -90,7 +91,7 @@ def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
         result = remeasure(registry, cache, target)
     except ModuleNotFoundError as error:
         return _missing_extra("convert gd1-page-map", error)
-    except (HashMismatch, FileNotFoundError, KeyError) as error:
+    except (ConversionError, HashMismatch, FileNotFoundError, KeyError) as error:
         print(f"bron convert gd1-page-map: {error}", file=sys.stderr)
         return 1
     for volume, pdf, read in result.outliers:

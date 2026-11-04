@@ -14,15 +14,17 @@ Run `bron convert gd1-page-map` to re-measure. It rewrites `data/page-map.yaml` 
 the file's hand-kept sections (reviews, numbering findings, printed headings) as they are.
 """
 
-import hashlib
 import itertools
 import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
+
+from bron.convert.gd1 import source_record
+from bron.convert.gd1.fetch import content_sha256
 
 MAP = Path(__file__).parent / "data" / "page-map.yaml"
 
@@ -68,11 +70,14 @@ class Review:
     note: str
 
 
+Method = Literal["ocr", "interpolated", "visually verified", "unresolved"]
+
+
 @dataclass(frozen=True)
 class Entry:
     n: str
     pdf: int | None
-    method: str  # "ocr", "interpolated", "visually verified", or "unresolved"
+    method: Method
     evidence: str = ""
     note: str = ""
 
@@ -198,7 +203,7 @@ def _apply_reviews(
 
 def verified_pdf(path: Path, sha256: str) -> Path:
     """The PDF, once its content hash is the one the registry records."""
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    digest = content_sha256(path.read_bytes())
     if digest != sha256:
         raise HashMismatch(f"{path}: SHA-256 is {digest}, the registry records {sha256}")
     return path
@@ -217,15 +222,6 @@ def pdf_lines(path: Path) -> list[list[str]]:
         return pages
     finally:
         document.close()
-
-
-def scan_source(registry: Mapping[str, Any], volume: int) -> Mapping[str, Any]:
-    """The registry record of a volume's DBNL scan."""
-    wanted = f"gd1-vol{volume}-dbnl"
-    for record in registry["sources"]:
-        if record["id"] == wanted:
-            return record
-    raise KeyError(f"the registry has no source {wanted!r}")
 
 
 def load_map(path: Path) -> dict[str, Any]:
@@ -257,12 +253,13 @@ def render(
             f"  - volume: {number}",
             f"    pdf: {source['url']}",
             f"    sha256: {source['sha256']}",
-            "    outliers:",
         ]
         outliers = [(pdf, label) for vol, pdf, label in result.outliers if vol == number]
-        lines += [f"      - {{pdf: {pdf}, read: '{label}'}}" for pdf, label in outliers] or []
-        if not outliers:
-            lines[-1] = "    outliers: []"
+        if outliers:
+            lines.append("    outliers:")
+            lines += [f"      - {{pdf: {pdf}, read: '{label}'}}" for pdf, label in outliers]
+        else:
+            lines.append("    outliers: []")
         lines.append("    pages:")
         for entry in entries:
             pdf = "null" if entry.pdf is None else str(entry.pdf)
@@ -278,7 +275,7 @@ def remeasure(registry_path: Path, cache: Path, map_path: Path) -> Measurement:
     """Measure every volume from the cached PDFs and rewrite the map file."""
     registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
     kept = load_map(map_path)
-    sources = {number: scan_source(registry, number) for number in VOLUMES}
+    sources = {number: source_record(registry, number, "dbnl") for number in VOLUMES}
     pdfs = {}
     for number, source in sources.items():
         path = cache / Path(source["url"]).name

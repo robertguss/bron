@@ -39,7 +39,7 @@ def fetch(record: Mapping[str, Any], cache: Path, download: Download = http_get)
     """The cached file of a registry record, fetched first if the cache lacks a matching copy."""
     path = cache / Path(record["url"]).name
     expected = record["sha256"]
-    if path.is_file() and _sha256(path.read_bytes()) == expected:
+    if path.is_file() and content_sha256(path.read_bytes()) == expected:
         return path
     mirrors = sorted(record.get("mirrors") or [], key=lambda m: MIRROR_ORDER.index(m["kind"]))
     urls = [record["url"], *(mirror["url"] for mirror in mirrors)]
@@ -55,17 +55,17 @@ def fetch(record: Mapping[str, Any], cache: Path, download: Download = http_get)
 
 
 def _verified(data: bytes, expected: str) -> bytes | None:
-    if _sha256(data) == expected:
+    if content_sha256(data) == expected:
         return data
     if data[:2] == b"\x1f\x8b":
         try:
             unpacked = gzip.decompress(data)
         except OSError, EOFError:
             return None
-        if _sha256(unpacked) == expected:
+        if content_sha256(unpacked) == expected:
             return unpacked
     return None
 
 
-def _sha256(data: bytes) -> str:
+def content_sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()

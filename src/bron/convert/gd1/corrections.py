@@ -14,16 +14,12 @@ number beside the corrected one, as a `choice` with `resp="#bron-convert"`.
 """
 
 import re
-from collections.abc import Callable
 
 from lxml import etree
 
-from bron.convert.gd1 import ConversionError
+from bron.convert.gd1 import CONVERTER, ConversionError, Fill
 from bron.tei import tei
 
-Fill = Callable[[etree._Element, etree._Element], None]
-
-CONVERTER = "#bron-convert"
 INSERTION = "ingevoegd"
 SPILLED_TITLE = re.compile(r'title="([^"]*)">(.*)', re.DOTALL)
 SUPERSCRIPT = re.compile(r"\{([^}]*)\}")

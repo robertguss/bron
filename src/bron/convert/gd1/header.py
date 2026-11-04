@@ -16,7 +16,7 @@ from typing import Any
 
 from lxml import etree
 
-from bron.convert.gd1 import langs
+from bron.convert.gd1 import CONVERTER, TAGGER, langs
 from bron.tei import XML_ID, XML_LANG, tei
 
 PUBLIC_DOMAIN_MARK = "https://creativecommons.org/publicdomain/mark/1.0/"
@@ -128,10 +128,10 @@ def _title_statement(statement: etree._Element, volumes: Sequence[Provenance], c
         _add(credit, "orgName", DP_TEAM)
     converter = etree.SubElement(statement, tei("respStmt"))
     _add(converter, "resp", f"conversion to TEI at bron commit {commit}")
-    _add(converter, "name", "bron convert gd1").set(XML_ID, "bron-convert")
+    _add(converter, "name", "bron convert gd1").set(XML_ID, CONVERTER.removeprefix("#"))
     tagger = etree.SubElement(statement, tei("respStmt"))
     _add(tagger, "resp", "machine language tagging")
-    _add(tagger, "name", "bron language identification").set(XML_ID, "bron-langid")
+    _add(tagger, "name", "bron language identification").set(XML_ID, TAGGER.removeprefix("#"))
 
 
 def _ebook(volume: Provenance) -> etree._Element:

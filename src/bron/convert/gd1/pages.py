@@ -21,10 +21,9 @@ from typing import Any
 
 from lxml import etree
 
-from bron.convert.gd1 import ConversionError
+from bron.convert.gd1 import CONVERTER, ConversionError
 from bron.tei import XML_ID, tei
 
-CONVERTER = "#bron-convert"
 PAGE_ID = re.compile(r"Page_([0-9]+|[IVXLC]+)")
 
 # Unmarked pages, by volume: the id of the element that opens the page, and its number.

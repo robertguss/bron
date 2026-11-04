@@ -30,9 +30,9 @@ from lingua import Language, LanguageDetector, LanguageDetectorBuilder
 from lxml import etree
 
 from bron.checks.bron_rules import SCRIPTS
+from bron.convert.gd1 import TAGGER
 from bron.tei import XML_LANG, tei
 
-TAGGER = "#bron-langid"
 SCRIPT_CODES = {"grc": SCRIPTS["Greek"][0], "hbo": SCRIPTS["Hebrew"][0]}
 
 # The identifier chooses among these, so that the Dutch of the book and the English of its
@@ -69,7 +69,6 @@ ALSO = {
 }
 WORD = re.compile(r"[^\W\d_]+")
 
-# Characters that end a clause.
 DELIMITERS = frozenset(',;:.!?()[]„“”"«»—')
 # Elements a span may hold whole: milestones, corrections, highlighting, abbreviations.
 INLINE = frozenset(tei(name) for name in ("pb", "lb", "choice", "sic", "corr", "hi", "abbr"))
@@ -140,9 +139,6 @@ def _is_neutral(character: str) -> bool:
     return character.isspace() or unicodedata.category(character).startswith("P")
 
 
-# The script layer.
-
-
 def _scripts(element: etree._Element, inherited: str, tags: Tags) -> None:
     language = _language(element, inherited)
     for code, characters in SCRIPT_CODES.items():
@@ -191,17 +187,12 @@ def _script_runs(
 def _script_kind(child: etree._Element, characters: re.Pattern[str]) -> str:
     """Whether a child can sit inside a stretch of the script: "script" if it holds the
     script, "neutral" if it holds no letters, "other" otherwise."""
-    if not isinstance(child.tag, str) or child.tag not in INLINE:
-        return "other"
-    if any(node.tag not in INLINE for node in child.iterdescendants()):
+    if not _plain(child):
         return "other"
     text = "".join(child.itertext())
     if any(not characters.match(c) and not _is_neutral(c) for c in text):
         return "other"
     return "script" if any(characters.match(c) for c in text) else "neutral"
-
-
-# The statistical layer.
 
 
 @dataclass
@@ -312,12 +303,15 @@ def _identify(text: str) -> str | None:
     sure enough of it; None otherwise."""
     if sum(character.isalpha() for character in text) <= FLOOR:
         return None
+    words = WORD.findall(text.lower())
+    # Words that rule a clause out whatever the identifier says are checked before it runs.
+    if any("ĳ" in word or (word in DUTCH_WORDS and word not in ALSO) for word in words):
+        return None
     # The identifier's Dutch models spell ij as two letters, as the ligature is rarely used.
     best = _detector().compute_language_confidence_values(text.replace("ĳ", "ij"))[0]
     if best.language not in TAGGED or best.value <= THRESHOLD:
         return None
     code = TAGGED[best.language]
-    for word in WORD.findall(text.lower()):
-        if "ĳ" in word or (word in DUTCH_WORDS and code not in ALSO.get(word, "").split()):
-            return None
+    if any(word in DUTCH_WORDS and code not in ALSO.get(word, "").split() for word in words):
+        return None
     return code

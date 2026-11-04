@@ -17,7 +17,7 @@ from typing import Any
 import yaml
 from lxml import etree
 
-from bron.convert.gd1 import ConversionError
+from bron.convert.gd1 import ConversionError, source_record
 from bron.convert.gd1.fetch import Download, fetch, http_get
 from bron.convert.gd1.header import Provenance, header
 from bron.convert.gd1.html import Converter, parse
@@ -137,7 +137,7 @@ def convert(
 ) -> Conversion:
     """All four volumes as one TEI file, from the sources the registry pins."""
     registry = yaml.safe_load(registry_path.read_text(encoding="utf-8"))
-    paths = [fetch(_record(registry, n, "gutenberg"), cache, download) for n in VOLUMES]
+    paths = [fetch(source_record(registry, n, "gutenberg"), cache, download) for n in VOLUMES]
     page_map = load_map(MAP)
     volumes = []
     for number, path in zip(VOLUMES, paths, strict=True):
@@ -160,8 +160,8 @@ def assemble(
     provenance = [
         Provenance(
             volume.number,
-            _record(registry, volume.number, "gutenberg"),
-            _record(registry, volume.number, "dbnl"),
+            source_record(registry, volume.number, "gutenberg"),
+            source_record(registry, volume.number, "dbnl"),
             volume.title,
             volume.transcribers,
             [deepcopy(note) for note in volume.notes],
@@ -195,14 +195,6 @@ def _division(number: int, nodes: list[etree._Element]) -> etree._Element:
     division.set("n", str(number))
     division.extend(nodes)
     return division
-
-
-def _record(registry: Mapping[str, Any], volume: int, kind: str) -> Mapping[str, Any]:
-    wanted = f"gd1-vol{volume}-{kind}"
-    for record in registry["sources"]:
-        if record["id"] == wanted:
-            return record
-    raise ConversionError(f"the registry has no source {wanted!r}")
 
 
 def _indent(element: etree._Element, level: int) -> None:
