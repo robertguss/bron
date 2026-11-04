@@ -11,6 +11,7 @@ which matches stops the conversion before anything is parsed.
 
 import gzip
 import hashlib
+import zlib
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
@@ -60,7 +61,7 @@ def _verified(data: bytes, expected: str) -> bytes | None:
     if data[:2] == b"\x1f\x8b":
         try:
             unpacked = gzip.decompress(data)
-        except OSError, EOFError:
+        except OSError, EOFError, zlib.error:
             return None
         if content_sha256(unpacked) == expected:
             return unpacked

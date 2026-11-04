@@ -60,6 +60,14 @@ def test_a_wayback_copy_stored_gzip_compressed_matches_once_decompressed(tmp_pat
     assert fetch(record(), tmp_path, downloads).read_bytes() == GOOD
 
 
+def test_a_damaged_compressed_mirror_is_skipped_for_the_next_one(tmp_path: Path) -> None:
+    # A valid gzip header followed by a deflate block of an invalid type.
+    damaged = b"\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff" + b"\xff" * 8
+    downloads = Downloads({RELEASE: damaged, WAYBACK: GOOD})
+    assert fetch(record(), tmp_path, downloads).read_bytes() == GOOD
+    assert downloads.asked == [LIVE, RELEASE, WAYBACK]
+
+
 def test_a_cached_copy_with_the_registered_hash_is_used_without_downloading(
     tmp_path: Path,
 ) -> None:
