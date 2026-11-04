@@ -1,0 +1,134 @@
+# The GD1 source records of bron-data's registry/sources.yaml, copied for the converter's tests.
+sources:
+  - id: gd1-vol1-gutenberg
+    work: urn:cts:bron:bavinck.gd
+    holder: Project Gutenberg
+    holder_id: 51052
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1895 (deel 1)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.gutenberg.org/cache/epub/51052/pg51052-images.html
+    sha256: c602162ff66e86b9fe3a96700720876c2c822e32be869f95a2a071d9816ec66e
+    mirrors:
+      - url: https://github.com/robertguss/bron-data/releases/download/sources-gd1/pg51052-images.html
+        kind: release-asset
+        status: ok
+      - url: https://web.archive.org/web/20261104104729id_/https://www.gutenberg.org/cache/epub/51052/pg51052-images.html
+        kind: wayback
+        status: ok
+    notes: >-
+      Distributed Proofreaders transcription (Anna Tuinman, Eline Visser, Hans Pieterse and the Online Distributed Proofreading Team), HTML with images, downloaded
+      2026-11-04. Input of the one-time GD¹ conversion. The Wayback raw capture serves the
+      same bytes gzip-encoded; its decompressed SHA-256 matches. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol2-gutenberg
+    work: urn:cts:bron:bavinck.gd
+    holder: Project Gutenberg
+    holder_id: 67966
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1897 (deel 2)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.gutenberg.org/cache/epub/67966/pg67966-images.html
+    sha256: 81b75bd16044f90275fe2e317d1762d0b1a1eeac5c16911fc0c1ce3abf9cdbe3
+    mirrors:
+      - url: https://github.com/robertguss/bron-data/releases/download/sources-gd1/pg67966-images.html
+        kind: release-asset
+        status: ok
+      - url: https://web.archive.org/web/20261104104843id_/https://www.gutenberg.org/cache/epub/67966/pg67966-images.html
+        kind: wayback
+        status: ok
+    notes: >-
+      Distributed Proofreaders transcription (Jeroen Hellingman, Hans Pieterse and the Online Distributed Proofreading Team), HTML with images, downloaded
+      2026-11-04. Input of the one-time GD¹ conversion. The Wayback raw capture serves the
+      same bytes gzip-encoded; its decompressed SHA-256 matches. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol3-gutenberg
+    work: urn:cts:bron:bavinck.gd
+    holder: Project Gutenberg
+    holder_id: 68527
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1898 (deel 3)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.gutenberg.org/cache/epub/68527/pg68527-images.html
+    sha256: 4bf418f961a3f087a6644cbdb96b832e2dae7608330926070b71f290aef4898a
+    mirrors:
+      - url: https://github.com/robertguss/bron-data/releases/download/sources-gd1/pg68527-images.html
+        kind: release-asset
+        status: ok
+      - url: https://web.archive.org/web/20261104104917id_/https://www.gutenberg.org/cache/epub/68527/pg68527-images.html
+        kind: wayback
+        status: ok
+    notes: >-
+      Distributed Proofreaders transcription (Jeroen Hellingman, Hans Pieterse and the Online Distributed Proofreading Team), HTML with images, downloaded
+      2026-11-04. Input of the one-time GD¹ conversion. The Wayback raw capture serves the
+      same bytes gzip-encoded; its decompressed SHA-256 matches. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol4-gutenberg
+    work: urn:cts:bron:bavinck.gd
+    holder: Project Gutenberg
+    holder_id: 69005
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1901 (deel 4)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.gutenberg.org/cache/epub/69005/pg69005-images.html
+    sha256: 8a410ed2014e5cba2c0ed038536ec3cf1887d05e667d0ddc2376596bb4cb14a7
+    mirrors:
+      - url: https://github.com/robertguss/bron-data/releases/download/sources-gd1/pg69005-images.html
+        kind: release-asset
+        status: ok
+      - url: https://web.archive.org/web/20261104105035id_/https://www.gutenberg.org/cache/epub/69005/pg69005-images.html
+        kind: wayback
+        status: ok
+    notes: >-
+      Distributed Proofreaders transcription (Jeroen Hellingman, Hans Pieterse and the Online Distributed Proofreading Team), HTML with images, downloaded
+      2026-11-04. Input of the one-time GD¹ conversion. The Wayback raw capture serves the
+      same bytes gzip-encoded; its decompressed SHA-256 matches. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol1-dbnl
+    work: urn:cts:bron:bavinck.gd
+    holder: DBNL (Digitale Bibliotheek voor de Nederlandse Letteren, KB)
+    holder_id: bavi002gere01
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1895 (deel 1)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.dbnl.org/arch/bavi002gere01_01/pag/bavi002gere01_01.pdf
+    sha256: 1da332b53e1df4c337076c3c3f016385ef1fcb45056306c6e978c45c62e6350b
+    notes: >-
+      Scan of the printed volume, one PDF, downloaded 2026-11-04. GD¹ page breaks link to its
+      pages; nothing from DBNL is copied or redistributed (ADR 0016). DBNL's site terms,
+      including its database right, are in terms.yaml. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol2-dbnl
+    work: urn:cts:bron:bavinck.gd
+    holder: DBNL (Digitale Bibliotheek voor de Nederlandse Letteren, KB)
+    holder_id: bavi002gere02
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1897 (deel 2)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.dbnl.org/arch/bavi002gere02_01/pag/bavi002gere02_01.pdf
+    sha256: 745feb1d10f02d31408d19fb15d124276e209419564fc80760774fa9d00e75a7
+    notes: >-
+      Scan of the printed volume, one PDF, downloaded 2026-11-04. GD¹ page breaks link to its
+      pages; nothing from DBNL is copied or redistributed (ADR 0016). DBNL's site terms,
+      including its database right, are in terms.yaml. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol3-dbnl
+    work: urn:cts:bron:bavinck.gd
+    holder: DBNL (Digitale Bibliotheek voor de Nederlandse Letteren, KB)
+    holder_id: bavi002gere03
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1898 (deel 3)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.dbnl.org/arch/bavi002gere03_01/pag/bavi002gere03_01.pdf
+    sha256: b9a64cdd24de6e653df875d033744389d03025976b164ae96a6a64d8b082215b
+    notes: >-
+      Scan of the printed volume, one PDF, downloaded 2026-11-04. GD¹ page breaks link to its
+      pages; nothing from DBNL is copied or redistributed (ADR 0016). DBNL's site terms,
+      including its database right, are in terms.yaml. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
+  - id: gd1-vol4-dbnl
+    work: urn:cts:bron:bavinck.gd
+    holder: DBNL (Digitale Bibliotheek voor de Nederlandse Letteren, KB)
+    holder_id: bavi002gere04
+    edition: 1ste druk (GD¹, 1895–1901)
+    printing: Kampen, J. H. Bos, 1901 (deel 4)
+    rights: https://creativecommons.org/publicdomain/mark/1.0/
+    url: https://www.dbnl.org/arch/bavi002gere04_01/pag/bavi002gere04_01.pdf
+    sha256: 5afb55f3e6770f94da71f98b4a0f681243d12b590feb07bf8141c2635fb55bdb
+    notes: >-
+      Scan of the printed volume, one PDF, downloaded 2026-11-04. GD¹ page breaks link to its
+      pages; nothing from DBNL is copied or redistributed (ADR 0016). DBNL's site terms,
+      including its database right, are in terms.yaml. Public domain: Bavinck died in 1921, so the EU term ended on 1 January 1992, and the volume was published before 1931, which makes it public domain in the US.
