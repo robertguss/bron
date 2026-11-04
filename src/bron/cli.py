@@ -11,11 +11,6 @@ from collections.abc import Sequence
 from pathlib import Path
 
 
-def _not_yet(name: str) -> int:
-    print(f"bron {name}: not available yet", file=sys.stderr)
-    return 2
-
-
 def _literal(text: str) -> str:
     """Pull-request text as one line of Markdown that renders exactly as written."""
     return re.sub(r"([\\`*_{}\[\]()#+!|<>&~-])", r"\\\1", " ".join(text.split()))
@@ -99,6 +94,34 @@ def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
         file=sys.stderr,
     )
     return 0 if result.complete else 1
+
+
+def _convert_gd1(registry: Path, cache: Path, commit: str, out: Path) -> int:
+    from bron.convert.gd1 import ConversionError
+    from bron.convert.gd1.emit import convert
+    from bron.convert.gd1.fetch import FetchError
+
+    try:
+        result = convert(registry, cache, commit)
+    except (ConversionError, FetchError, FileNotFoundError, KeyError) as error:
+        print(f"bron convert gd1: {error}", file=sys.stderr)
+        return 1
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(result.tei)
+    for volume in result.volumes:
+        pages = volume.pages
+        inserted = ", ".join(pages.inserted) or "none"
+        relabelled = ", ".join(f"{page} (shows {shown!r})" for page, shown in pages.malformed)
+        print(
+            f"vol. {volume.number}: {len(volume.sections)} sections, {len(pages.found)} page "
+            f"breaks (inserted: {inserted}; numbered from their anchor: {relabelled or 'none'}), "
+            f"{volume.corrections} corrections"
+        )
+    for number, section, missing in result.gaps:
+        print(f"numbering gap allowed by the page map: vol. {number}, § {section}, no {missing}")
+    sections = sum(len(volume.sections) for volume in result.volumes)
+    print(f"bron convert gd1: wrote {out} with {sections} sections", file=sys.stderr)
+    return 0
 
 
 def _expectation(raw: str) -> tuple[str, str]:
@@ -190,7 +213,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     convert = commands.add_parser("convert", help="convert a source text to TEI")
     convert_commands = convert.add_subparsers(dest="convert_command", required=True, metavar="text")
-    convert_commands.add_parser("gd1", help="Bavinck, Gereformeerde Dogmatiek, 1st edition")
+    gd1 = convert_commands.add_parser("gd1", help="Bavinck, Gereformeerde Dogmatiek, 1st edition")
+    gd1.add_argument(
+        "--registry", type=Path, required=True, help="bron-data's registry/sources.yaml"
+    )
+    gd1.add_argument(
+        "--cache", type=Path, required=True, help="directory the source HTML is cached in"
+    )
+    gd1.add_argument(
+        "--bron-commit", required=True, help="the bron commit converting, recorded in the header"
+    )
+    gd1.add_argument("--out", type=Path, required=True, help="the TEI file to write")
     page_map = convert_commands.add_parser(
         "gd1-page-map", help="re-measure the GD¹ page map from the cached DBNL scan PDFs"
     )
@@ -219,7 +252,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         case "convert" if args.convert_command == "gd1-page-map":
             return _page_map(args.registry, args.cache, args.map)
         case "convert":
-            return _not_yet("convert gd1")
+            return _convert_gd1(args.registry, args.cache, args.bron_commit, args.out)
     raise AssertionError(f"unhandled command {args.command!r}")
 
 
