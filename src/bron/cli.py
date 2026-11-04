@@ -78,6 +78,29 @@ def _serve(data_repo: Path, host: str, port: int, base_url: str | None) -> int:
     return 0
 
 
+def _page_map(registry: Path, cache: Path, map_path: Path | None) -> int:
+    from bron.convert.gd1.pagemap import MAP, HashMismatch, remeasure
+
+    target = map_path or MAP
+    try:
+        result = remeasure(registry, cache, target)
+    except (HashMismatch, FileNotFoundError, KeyError) as error:
+        print(f"bron convert gd1-page-map: {error}", file=sys.stderr)
+        return 1
+    for volume, pdf, read in result.outliers:
+        print(f"vol. {volume}: PDF page {pdf} reads {read!r}, which its neighbours rule out")
+    for volume, page in result.unresolved:
+        print(f"vol. {volume}: page {page} is unresolved: review it on the scan")
+    for conflict in result.conflicts:
+        print(f"conflict: {conflict}")
+    print(
+        f"bron convert gd1-page-map: wrote {target}; {len(result.interpolated)} interpolated, "
+        f"{len(result.unresolved)} unresolved, {len(result.conflicts)} conflicts",
+        file=sys.stderr,
+    )
+    return 0 if result.complete else 1
+
+
 def _expectation(raw: str) -> tuple[str, str]:
     urn, separator, prefix = raw.partition("=")
     if not separator or not urn or not prefix:
@@ -168,6 +191,18 @@ def build_parser() -> argparse.ArgumentParser:
     convert = commands.add_parser("convert", help="convert a source text to TEI")
     convert_commands = convert.add_subparsers(dest="convert_command", required=True, metavar="text")
     convert_commands.add_parser("gd1", help="Bavinck, Gereformeerde Dogmatiek, 1st edition")
+    page_map = convert_commands.add_parser(
+        "gd1-page-map", help="re-measure the GD¹ page map from the cached DBNL scan PDFs"
+    )
+    page_map.add_argument(
+        "--registry", type=Path, required=True, help="bron-data's registry/sources.yaml"
+    )
+    page_map.add_argument(
+        "--cache", type=Path, required=True, help="directory holding the downloaded scan PDFs"
+    )
+    page_map.add_argument(
+        "--map", type=Path, help="page map to rewrite (default: the one shipped with bron)"
+    )
 
     return parser
 
@@ -181,6 +216,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return _serve(args.data_repo, args.host, args.port, args.base_url)
         case "dts":
             return _verify(args.data_repo, args.expect, args.schemas)
+        case "convert" if args.convert_command == "gd1-page-map":
+            return _page_map(args.registry, args.cache, args.map)
         case "convert":
             return _not_yet("convert gd1")
     raise AssertionError(f"unhandled command {args.command!r}")
