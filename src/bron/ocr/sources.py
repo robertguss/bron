@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from lxml import etree
 
 from bron.ocr import OcrError, delpher
 from bron.ocr.download import Downloader
@@ -41,15 +42,29 @@ def key(identifier: str) -> str:
     return identifier.replace(":", "_")
 
 
+def is_didl(data: bytes) -> bool:
+    """Whether `data` is a DIDL record listing at least one scan, for want of a checksum."""
+    try:
+        return bool(delpher.parse_didl(data))
+    except OcrError, etree.XMLSyntaxError:
+        return False
+
+
 def didl(downloader: Downloader, volume_id: str) -> Path:
     return downloader.fetch(
-        "delpher", f"{key(volume_id)}-didl", delpher.didl_url(volume_id), "didl.xml"
+        "delpher",
+        f"{key(volume_id)}-didl",
+        delpher.didl_url(volume_id),
+        "didl.xml",
+        check=is_didl,
     )
 
 
 def volume_pdf(downloader: Downloader, volume_id: str) -> Path:
+    """The volume's PDF, checked against the MD5 its DIDL record publishes."""
+    md5sum = delpher.pdf_md5(didl(downloader, volume_id).read_bytes())
     return downloader.fetch(
-        "delpher", f"{key(volume_id)}-pdf", delpher.pdf_url(volume_id), "volume.pdf"
+        "delpher", f"{key(volume_id)}-pdf", delpher.pdf_url(volume_id), "volume.pdf", md5sum=md5sum
     )
 
 

@@ -2,6 +2,8 @@
 
 Exit status is 0 when every check passes and 1 when any check fails. Findings are
 printed one per line as `file:line: check-id: message` so CI logs stay greppable.
+`bron ocr sample` exits 3 when pages still need a Greek and Hebrew judgment before the draw
+can finish, and any command exits 2 on a usage error or a missing optional extra.
 """
 
 import argparse
@@ -212,6 +214,12 @@ def _ocr_command(args: argparse.Namespace) -> int:
     from bron.ocr.manifest import Manifest
 
     command = args.ocr_command
+    if command == "span-check":
+        manifest = Manifest.load(args.manifest)
+        pipeline.mark_spans_checked(manifest, args.pages, args.by)
+        manifest.write(args.manifest)
+        print(f"bron ocr span-check: marked {len(args.pages)} spans checked", file=sys.stderr)
+        return 0
     downloader = Downloader(args.cache, sources.SPACING)
     if command == "packet":
         from bron.ocr.packets import round1
@@ -353,15 +361,18 @@ def build_parser() -> argparse.ArgumentParser:
     ocr = commands.add_parser("ocr", help="the GD² OCR sample test")
     ocr_commands = ocr.add_subparsers(dest="ocr_command", required=True, metavar="step")
 
-    def ocr_step(name: str, help_: str, *, registry: bool = True) -> argparse.ArgumentParser:
+    def ocr_step(
+        name: str, help_: str, *, registry: bool = True, cache: bool = True
+    ) -> argparse.ArgumentParser:
         step = ocr_commands.add_parser(name, help=help_)
         if registry:
             step.add_argument(
                 "--registry", type=Path, required=True, help="bron-data's registry/sources.yaml"
             )
-        step.add_argument(
-            "--cache", type=Path, required=True, help="cache directory, outside any repository"
-        )
+        if cache:
+            step.add_argument(
+                "--cache", type=Path, required=True, help="cache directory, outside any repository"
+            )
         return step
 
     ocr_step("sources", "fetch and verify both printings' sources into the cache")
@@ -377,6 +388,12 @@ def build_parser() -> argparse.ArgumentParser:
     spans = ocr_step("spans", "find each sampled page's words in the fourth printing")
     spans.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
     spans.add_argument("--renders", type=Path, help="directory for scans to check spans on")
+    checked = ocr_step(
+        "span-check", "record that spans were checked on the scans", registry=False, cache=False
+    )
+    checked.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
+    checked.add_argument("--by", required=True, help="who checked the spans")
+    checked.add_argument("pages", nargs="+", help="ids of the pages whose spans match the scans")
     packet = ocr_step("packet", "write the reader's round-1 packet", registry=False)
     packet.add_argument("--manifest", type=Path, required=True, help="the sample manifest")
     packet.add_argument("--rules", type=Path, required=True, help="the transcription rules")

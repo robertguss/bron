@@ -131,3 +131,55 @@ def test_check_summary_shows_record_text_literally(data_repo: Path, tmp_path: Pa
     assert not any(line.startswith("## Fake") for line in text.splitlines())
     assert "](" not in text
     assert "Fake heading" in text
+
+
+def test_ocr_verify_passes_a_clean_cache_and_fails_a_changed_source(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from bron.ocr.manifest import Manifest
+
+    cache = tmp_path / "cache"
+    (cache / "delpher" / "a").mkdir(parents=True)
+    scan = cache / "delpher" / "a" / "image.jp2"
+    scan.write_bytes(b"scan")
+    manifest = Manifest()
+    manifest.record_source(cache, scan)
+    manifest.write(tmp_path / "manifest.yaml")
+    argv = ["ocr", "verify", "--cache", str(cache), "--manifest", str(tmp_path / "manifest.yaml")]
+    assert main(argv) == 0
+    scan.write_bytes(b"another scan")
+    assert main(argv) == 1
+    assert "delpher/a/image.jp2: changed since it was recorded" in capsys.readouterr().out
+
+
+def test_ocr_sample_exits_3_while_pages_still_need_judging(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from bron.ocr import pipeline
+    from bron.ocr.sample import NeedJudgments
+
+    registry = tmp_path / "sources.yaml"
+    registry.write_text("sources: []\n")
+    monkeypatch.setattr(pipeline, "read_volume", lambda registry, downloader, number: None)
+    monkeypatch.setattr(pipeline, "draw", lambda *args: NeedJudgments(((1, 5), (3, 40))))
+    out = tmp_path / "manifest.yaml"
+    argv = ["ocr", "sample", "--registry", str(registry), "--cache", str(tmp_path / "cache")]
+    assert main([*argv, "--seed-commit", "0" * 40, "--out", str(out)]) == 3
+    assert "vol. 1 p. 5, vol. 3 p. 40" in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_ocr_exits_2_naming_the_extra_when_a_module_is_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from bron.ocr import packets
+    from bron.ocr.manifest import Manifest
+
+    def missing(*args: object) -> None:
+        raise ModuleNotFoundError("No module named 'PIL'", name="PIL")
+
+    monkeypatch.setattr(packets, "round1", missing)
+    Manifest().write(tmp_path / "m.yaml")
+    argv = ["ocr", "packet", "--cache", str(tmp_path), "--manifest", str(tmp_path / "m.yaml")]
+    assert main([*argv, "--rules", str(tmp_path / "r.md"), "--out", str(tmp_path / "p")]) == 2
+    assert "needs PIL, from bron's ocr extra" in capsys.readouterr().err

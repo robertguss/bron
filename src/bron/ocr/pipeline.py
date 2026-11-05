@@ -63,12 +63,15 @@ def load_judgments(path: Path | None) -> tuple[dict[sample.Page, sample.Judgment
     if path is None or not path.is_file():
         return {}, []
     rows = yaml.safe_load(path.read_text(encoding="utf-8")) or []
-    judgments = {
-        (int(row["volume"]), int(row["page"])): sample.Judgment(
-            bool(row["greek"]), bool(row["hebrew"])
-        )
-        for row in rows
-    }
+    judgments = {}
+    for row in rows:
+        flags = (row.get("greek"), row.get("hebrew"))
+        if not all(isinstance(flag, bool) for flag in flags):
+            raise OcrError(
+                f"{path}: vol. {row.get('volume')} p. {row.get('page')}: greek and hebrew "
+                "must each be true or false, unquoted"
+            )
+        judgments[(int(row["volume"]), int(row["page"]))] = sample.Judgment(*flags)
     return judgments, rows
 
 
@@ -145,7 +148,7 @@ def write_sample(
         }
     used = {}
     for n in sample.OTHER_VOLUMES:
-        judged = [p for (vol, p) in ((r["volume"], r["page"]) for r in judgment_rows) if vol == n]
+        judged = [r["page"] for r in judgment_rows if r["volume"] == n]
         deepest = max(
             [
                 result.orders[n].index(p)
@@ -215,8 +218,7 @@ def fetch_pages(
         }
     for v in volumes.values():
         manifest.record_source(cache, v.pdf)
-        didl = cache / "delpher" / f"{sources.key(v.identifier)}-didl" / "didl.xml"
-        manifest.record_source(cache, didl)
+        manifest.record_source(cache, sources.didl(downloader, v.identifier))
 
 
 def locate_spans(
@@ -245,6 +247,8 @@ def locate_spans(
         lines = alto_lines((cache / entry["print2"]["alto"]["file"]).read_bytes())
         found = spans.locate(lines, entry["page"], ratio, haystack)
         halves = []
+        if any(page not in haystack.pages for page in found["covering_pages"] or []):
+            found["covering_pages"] = None
         for page in found["covering_pages"] or []:
             index = haystack.pages.index(page)
             half = read.halves[index]
@@ -268,13 +272,27 @@ def locate_spans(
     return problems
 
 
-def _render_span(entry: dict, cache: Path, pdf: Path, halves: list[dict], out: Path) -> None:
-    from PIL import Image
+def mark_spans_checked(manifest: Manifest, ids: Sequence[str], by: str) -> None:
+    """Record that each named page's span was checked against the rendered scans."""
+    entries = {entry["id"]: entry for entry in manifest.data["pages"]}
+    for page_id in ids:
+        entry = entries.get(page_id)
+        if entry is None:
+            raise OcrError(f"{page_id} is not a sampled page")
+        if not (entry.get("print4") or {}).get("covering_pages"):
+            raise OcrError(f"{page_id} has no located span to mark checked")
+    for page_id in ids:
+        entries[page_id]["print4"]["visual_check"] = {
+            "by": by,
+            "on": datetime.date.today().isoformat(),
+        }
 
+
+def _render_span(entry: dict, cache: Path, pdf: Path, halves: list[dict], out: Path) -> None:
     from bron.ocr import pdfsource
 
     out.mkdir(parents=True, exist_ok=True)
-    with Image.open(cache / entry["print2"]["image"]["file"]) as scan:
+    with delpher.open_scan(cache / entry["print2"]["image"]["file"]) as scan:
         scan.convert("L").save(out / f"{entry['id']}-print2.png")
     for half in halves:
         image = pdfsource.render_half(pdf, half["spread"], half["side"], half["gutter"])

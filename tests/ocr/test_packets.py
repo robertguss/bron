@@ -76,3 +76,32 @@ def test_a_packet_is_never_written_over_anything(tmp_path: Path) -> None:
     (out / "left-over.txt").write_text("x")
     with pytest.raises(OcrError, match="not empty"):
         round1(manifest, cache, rules, out)
+
+
+def test_a_packet_asked_for_before_the_fetch_writes_nothing_and_can_be_asked_for_again(
+    tmp_path: Path,
+) -> None:
+    manifest, cache, rules = packet_inputs(tmp_path)
+    fetched = manifest.data["pages"][0].pop("print2")
+    out = tmp_path / "packet"
+    with pytest.raises(OcrError, match="fetch the sampled pages first"):
+        round1(manifest, cache, rules, out)
+    assert not out.exists()
+    manifest.data["pages"][0]["print2"] = fetched
+    assert len(round1(manifest, cache, rules, out)) == 5
+
+
+def test_a_page_whose_scan_is_missing_from_the_cache_writes_nothing(tmp_path: Path) -> None:
+    manifest, cache, rules = packet_inputs(tmp_path)
+    (cache / "delpher" / "s-image" / "image.jp2").unlink()
+    out = tmp_path / "packet"
+    with pytest.raises(OcrError, match="image is not in the cache"):
+        round1(manifest, cache, rules, out)
+    assert not out.exists()
+
+
+def test_a_scan_that_is_not_jpeg2000_is_refused(tmp_path: Path) -> None:
+    manifest, cache, rules = packet_inputs(tmp_path)
+    Image.new("L", (40, 60), 200).save(cache / "delpher" / "s-image" / "image.jp2", "PNG")
+    with pytest.raises(OcrError, match="not a JPEG 2000 image"):
+        round1(manifest, cache, rules, tmp_path / "packet")

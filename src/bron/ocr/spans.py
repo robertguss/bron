@@ -24,6 +24,7 @@ RUN = 6  # words in an opening or closing run
 MIN_SCORE = 80.0  # rapidfuzz partial-ratio a match must reach
 AMBIGUITY = 3.0  # a second match within this many points makes the first ambiguous
 WINDOW = 60  # printed pages either side of the predicted page searched
+MAX_COVER = 3  # fourth-printing pages one second-printing page can plausibly span
 
 
 @dataclass(frozen=True)
@@ -145,9 +146,8 @@ def locate(lines: Sequence[AltoLine], page: int, ratio: float, haystack: Haystac
         "notes": [],
     }
     pages = [h.page for h in (first, last) if h is not None]
-    covering = (
-        list(range(pages[0], pages[1] + 1)) if len(pages) == 2 and pages[0] <= pages[1] else None
-    )
+    spread = pages[1] - pages[0] + 1 if len(pages) == 2 else 0
+    covering = list(range(pages[0], pages[1] + 1)) if 1 <= spread <= MAX_COVER else None
     found["covering_pages"] = covering
     for note in _notes(split.notes):
         hit = None
@@ -167,11 +167,16 @@ def _hit(hit: Hit | None) -> dict:
     return {"page": hit.page, "score": hit.score, "ambiguous": hit.ambiguous}
 
 
+# A footnote's number and bracket. OCR reads a superscript number as the digits or as any
+# one mark (Delpher's ALTO has ') !) *) J) and others for 1) and 2)).
+_CALLOUT = re.compile(r"^\s*(?:\d{1,2}|\S)\s*\)\s")
+
+
 def _notes(lines: Sequence[AltoLine]) -> list[list[str]]:
     """Each footnote's words: a new note starts at a line opening with its number and ')'."""
     notes: list[list[str]] = []
     for line in lines:
-        if re.match(r"^\s*\d{1,2}\s*\)", line.text) or not notes:
+        if _CALLOUT.match(line.text) or not notes:
             notes.append([])
         notes[-1].extend(normalize(line.text).split())
     return [note for note in notes if len(note) >= 3]

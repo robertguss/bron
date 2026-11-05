@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 from bron.ocr import OcrError
-from bron.ocr.delpher import AltoLine, alto_lines
+from bron.ocr.delpher import AltoLine, alto_lines, open_scan
 from bron.ocr.download import sha256
 from bron.ocr.manifest import Manifest
 from bron.ocr.spans import parts
@@ -35,25 +35,32 @@ def prefill(page_id: str, label: str, page: int, lines: Sequence[AltoLine]) -> s
 
 
 def round1(manifest: Manifest, cache: Path, rules: Path, out: Path) -> list[Path]:
-    """Write the round-1 packet into `out`, which must not exist yet or be empty."""
-    from PIL import Image
+    """Write the round-1 packet into `out`, which must not exist yet or be empty.
 
+    Every sampled page's scan and ALTO are looked for before anything is written, so a packet
+    asked for too early leaves `out` as it was and can simply be asked for again.
+    """
     if out.exists() and any(out.iterdir()):
         raise OcrError(f"{out} is not empty")
+    for entry in manifest.data["pages"]:
+        print2 = entry.get("print2")
+        if print2 is None:
+            raise OcrError(f"{entry['id']}: fetch the sampled pages first")
+        for kind in ("alto", "image"):
+            if not (cache / print2[kind]["file"]).is_file():
+                raise OcrError(f"{entry['id']}: its {kind} is not in the cache; fetch it first")
     pages = out / "pages"
     pages.mkdir(parents=True, exist_ok=True)
     written = []
     minutes = []
     for entry in manifest.data["pages"]:
-        print2 = entry.get("print2")
-        if print2 is None:
-            raise OcrError(f"{entry['id']}: fetch the sampled pages first")
+        print2 = entry["print2"]
         label = f"vol. {entry['volume']}, p. {entry['page']} (Delpher {print2['identifier']})"
         lines = alto_lines((cache / print2["alto"]["file"]).read_bytes())
         text = pages / f"{entry['id']}.gt.txt"
         text.write_text(prefill(entry["id"], label, entry["page"], lines), encoding="utf-8")
         image = pages / f"{entry['id']}.png"
-        with Image.open(cache / print2["image"]["file"]) as scan:
+        with open_scan(cache / print2["image"]["file"]) as scan:
             scan.save(image)
         written += [text, image]
         minutes.append(f"{entry['id']}: ")

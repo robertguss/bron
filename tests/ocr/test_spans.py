@@ -130,3 +130,32 @@ def test_a_footnote_cited_again_far_off_is_found_with_its_body() -> None:
     found = locate(page, 30, 1.0, hay)
     assert found["covering_pages"] == [12]
     assert [(n["page"], n["ambiguous"]) for n in found["notes"]] == [(12, False)]
+
+
+def test_footnotes_whose_number_was_read_as_a_mark_are_still_told_apart() -> None:
+    from bron.ocr.spans import _notes
+
+    lines = [
+        line("') Schleiermacher, Glaub. par. 10 Zusatz.", 2400, NOTE_SIZE),
+        line("1884 bl. 1-48. Hoekstra, Wijsg. Godsd.", 2430, NOTE_SIZE),
+        line("!) Orig. c. Cels V. Aug. de civ. Dei", 2460, NOTE_SIZE),
+        line("J) Lagarde, Deutsche Schriften 1903.", 2490, NOTE_SIZE),
+        line("3) Verg. over de beteekenis van het woord", 2520, NOTE_SIZE),
+    ]
+    assert [note[0] for note in _notes(lines)] == ["schleiermacher", "orig", "j", "3"]
+
+
+def test_a_span_over_more_pages_than_one_page_can_fill_is_not_trusted() -> None:
+    page = sampled_page([OPENING + " de leer van God ontwikkelt", FILLER, "waarin zij " + CLOSING])
+    hay = Haystack.build(
+        spreads(
+            {
+                12: OPENING + " de leer van God ontwikkelt " + FILLER,
+                13: FILLER,
+                14: FILLER,
+                15: FILLER,
+                16: "waarin zij " + CLOSING,
+            }
+        )
+    )
+    assert locate(page, 12, 1.0, hay)["covering_pages"] is None

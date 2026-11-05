@@ -12,10 +12,14 @@ import struct
 from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from lxml import etree
 
 from bron.ocr import OcrError
+
+if TYPE_CHECKING:
+    from PIL import Image
 
 OAI = "https://services.kb.nl/mdo/oai"
 RESOLVER = "https://resolver.kb.nl/resolve?urn="
@@ -70,6 +74,17 @@ def parse_didl(data: bytes) -> list[Scan]:
     return scans
 
 
+def pdf_md5(data: bytes) -> str:
+    """The MD5 the DIDL record publishes for the volume's PDF."""
+    root = etree.fromstring(data)
+    for component in root.iter(f"{{{_DIDL}}}Component"):
+        if component.get(f"{{{_DC}}}identifier", "").endswith(":pdf"):
+            checksum = component.find(f".//{{{_DIDL}}}Statement[@{{{_DC}}}type='md5']")
+            if checksum is not None and checksum.text:
+                return checksum.text.strip().lower()
+    raise OcrError("the DIDL record publishes no MD5 for the volume's PDF")
+
+
 def _resources(item: etree._Element, identifier: str) -> Iterator[tuple[str, tuple[str, str]]]:
     for component in item.iter(f"{{{_DIDL}}}Component"):
         kind = component.get(f"{{{_DC}}}identifier", "").removeprefix(identifier + ":")
@@ -90,6 +105,20 @@ def jp2_size(data: bytes) -> tuple[int, int]:
         raise OcrError("not a JPEG 2000 codestream")
     width, height, x0, y0 = struct.unpack(">IIII", data[start + 8 : start + 24])
     return width - x0, height - y0
+
+
+def open_scan(path: Path) -> Image.Image:
+    """A cached scan opened as JPEG 2000 only, so a download in another format is refused.
+
+    Pillow otherwise picks a decoder from the bytes, whatever the file is called, and some of
+    its decoders hand the file to outside programs such as Ghostscript.
+    """
+    from PIL import Image, UnidentifiedImageError
+
+    try:
+        return Image.open(path, formats=["JPEG2000"])
+    except UnidentifiedImageError as error:
+        raise OcrError(f"{path} is not a JPEG 2000 image") from error
 
 
 def alto_page_size(data: bytes) -> tuple[int, int]:
